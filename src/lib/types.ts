@@ -54,23 +54,13 @@ export interface SLAPolicy {
   endOfLifeSource: string;
 }
 
-export interface CoreSummary {
-  id: string;
-  name: string;
-  ownerName: string;
-  ownerEmail: string;
-  serviceCount: number;
-  trustedCount: number; // services with trustState=="trusted"
-  /** Aggregated CVE counts across all services in this core, latest version only. */
-  counts: {
-    critical: number;
-    high: number;
-    medium: number;
-    secrets: number;
-    maliciousPackages: number;
-  };
-  /** Number of services breaching SLA right now. */
-  slaBreaches: number;
+export interface RuntimeSignal {
+  deployed: boolean; // Currently running in any prod cluster?
+  reachable: boolean; // Wiz/eBPF: vulnerable code path is loaded?
+  internetFacing: boolean; // Workload has ingress / public exposure?
+  customerImpact: number; // Number of SaaS customer tenants affected (0 = self-managed only)
+  runningPods: string[]; // Mock pod names
+  runningClusters: string[]; // Mock cluster names
 }
 
 export interface CVE {
@@ -98,6 +88,8 @@ export interface CVEInstance {
   detectedAt: string;
   /** Optional Jira ticket tracking the fix. */
   jiraKey?: string;
+  /** Runtime / Wiz-style exposure for this CVE on this service version. */
+  runtime: RuntimeSignal;
 }
 
 export interface RepoLocation {
@@ -172,12 +164,18 @@ export interface CVEMatrixCell {
   slaStatus: SLAStatus;
   /** Worst lifecycle state. */
   state: LifecycleState;
+  /** Exposure on the latest version row used for the matrix. */
+  runtime: RuntimeSignal;
+  /** Semver shown in the matrix popover / panel. */
+  serviceVersion: string;
 }
 
 export interface CVEMatrixRow {
   cve: CVE;
   /** Total components across all services affected by this CVE. */
   totalComponents: number;
+  /** Count of affected services where runtime.deployed (latest row). */
+  prodDeployedServices: number;
   /** Per-service cell. Key = serviceId. Empty cell = service not affected. */
   perService: Record<string, CVEMatrixCell | undefined>;
 }

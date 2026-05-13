@@ -10,11 +10,11 @@
 
 import {
   Core,
-  CoreSummary,
   CVE,
   CVEInstance,
   CVEMatrixRow,
   RepoLocation,
+  RuntimeSignal,
   Service,
   ServiceVersion,
   SLAPolicy,
@@ -280,6 +280,121 @@ const STANDARD_EVIDENCE: SecuredDistributionEvidence = {
   clamavInfectedCount: 0,
 };
 
+const CRITICAL_CORES = new Set<string>([
+  "jfrog-devops",
+  "jfrog-security",
+  "platform-services",
+]);
+
+const INTERNET_FACING_SERVICES = new Set<string>([
+  "frontend",
+  "access",
+  "apptrust-server",
+  "ml-runtime",
+]);
+
+/** Services where customerImpact may be non-zero when deployed (SaaS surfaces). */
+const SAAS_SURFACE_SERVICES = new Set<string>([
+  "frontend",
+  "access",
+  "artifactory-server",
+  "artifactory-federation",
+  "artifactory-router",
+  "xray-server",
+  "xray-jas-exposures",
+  "xray-analysis",
+  "connect-server",
+  "apptrust-server",
+  "apptrust-evidence",
+  "metadata",
+  "onemodel",
+  "ml-runtime",
+  "ml-registry",
+  "platform-federated-topology",
+  "platform-api-gateway",
+]);
+
+function fnv1a(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function deriveRuntime(
+  serviceId: string,
+  coreId: string,
+  versionIndex: number,
+  cveId: string
+): RuntimeSignal {
+  const seed = fnv1a(`${serviceId}|${cveId}|${versionIndex}`);
+  const seed2 = fnv1a(`reach|${serviceId}|${cveId}`);
+  const seed3 = fnv1a(`inet|${serviceId}|${cveId}`);
+
+  let deployed = false;
+  if (versionIndex === 0) {
+    if (CRITICAL_CORES.has(coreId)) {
+      deployed = seed % 100 < 88;
+    } else {
+      deployed = seed % 100 < 44;
+    }
+  } else {
+    deployed = seed % 100 < 14;
+  }
+
+  const highProd = new Set([
+    "artifactory-federation",
+    "artifactory-server",
+    "xray-server",
+    "access",
+    "frontend",
+    "metadata",
+  ]);
+  if (versionIndex === 0 && highProd.has(serviceId)) {
+    deployed = seed % 100 < 93;
+  }
+
+  const reachable = deployed ? seed2 % 100 < 60 : seed2 % 100 < 10;
+
+  const internetFacing = INTERNET_FACING_SERVICES.has(serviceId)
+    ? seed3 % 100 < 85
+    : seed3 % 100 < 14;
+
+  const customerImpact =
+    deployed && SAAS_SURFACE_SERVICES.has(serviceId) ? seed2 % 31 : 0;
+
+  const runningPods: string[] = [];
+  const runningClusters: string[] = [];
+  if (deployed) {
+    const suffix = ["xyz1", "abc2", "qrs3"][seed % 3];
+    runningPods.push(
+      `${serviceId}-${(10000 + (seed % 89999)).toString(36)}d8f9c-${suffix}`
+    );
+    if (seed % 4 === 0) {
+      runningPods.push(
+        `${serviceId}-sidecar-${(seed2 % 9000) + 1000}ffbc7d`
+      );
+    }
+    runningClusters.push(
+      seed % 2 === 0 ? "us-east-1-prod" : "us-west-2-prod"
+    );
+    if (seed % 3 === 0) {
+      runningClusters.push("eu-central-1-prod");
+    }
+  }
+
+  return {
+    deployed,
+    reachable,
+    internetFacing,
+    customerImpact,
+    runningPods,
+    runningClusters,
+  };
+}
+
 let cveSerial = 0;
 function makeCveInstance(
   cve: CVE,
@@ -311,6 +426,14 @@ function makeCveInstance(
     daysToSLA,
     detectedAt: detected.toISOString().split("T")[0],
     jiraKey: `JSEC-${1200 + cveSerial}`,
+    runtime: {
+      deployed: false,
+      reachable: false,
+      internetFacing: false,
+      customerImpact: 0,
+      runningPods: [],
+      runningClusters: [],
+    },
   };
 }
 
@@ -686,64 +809,31 @@ export const SERVICES: Service[] = [
   },
 ];
 
+function injectRuntimeSignals(): void {
+  for (const svc of SERVICES) {
+    svc.versions.forEach((version, versionIndex) => {
+      for (const ci of version.cves) {
+        ci.runtime = deriveRuntime(svc.id, svc.coreId, versionIndex, ci.cve.id);
+      }
+    });
+  }
+}
+
+injectRuntimeSignals();
+
 /* ------------------------------------------------------------------ */
 /* Aggregations                                                        */
 /* ------------------------------------------------------------------ */
 
-export function servicesByCore(coreId: string): Service[] {
-  return SERVICES.filter((s) => s.coreId === coreId);
-}
-
-export function getCore(coreId: string): Core | undefined {
-  return CORES.find((c) => c.id === coreId);
-}
-
-export function getService(serviceId: string): Service | undefined {
-  return SERVICES.find((s) => s.id === serviceId);
-}
-
-export function latestVersion(svc: Service): ServiceVersion {
+function latestVersion(svc: Service): ServiceVersion {
   return svc.versions[0];
-}
-
-export function coreSummary(coreId: string): CoreSummary {
-  const core = CORES.find((c) => c.id === coreId)!;
-  const svcs = servicesByCore(coreId);
-  const counts = { critical: 0, high: 0, medium: 0, secrets: 0, maliciousPackages: 0 };
-  let trustedCount = 0;
-  let slaBreaches = 0;
-  for (const svc of svcs) {
-    const v = latestVersion(svc);
-    if (v.trustState === "trusted") trustedCount += 1;
-    let breach = false;
-    for (const ci of v.cves) {
-      if (ci.cve.severity === "critical") counts.critical += 1;
-      if (ci.cve.severity === "high") counts.high += 1;
-      if (ci.cve.severity === "medium") counts.medium += 1;
-      if (ci.slaStatus === "breached") breach = true;
-    }
-    if (breach) slaBreaches += 1;
-  }
-  // Sprinkle some secrets/malicious counts to mirror screenshot 3
-  const seed = coreId.length;
-  counts.secrets = (seed * 7) % 50;
-  counts.maliciousPackages = (seed * 3) % 5;
-  return {
-    id: core.id,
-    name: core.name,
-    ownerName: core.ownerName,
-    ownerEmail: core.ownerEmail,
-    serviceCount: svcs.length,
-    trustedCount,
-    counts,
-    slaBreaches,
-  };
 }
 
 export function buildCVEMatrix(): CVEMatrixRow[] {
   const rows: CVEMatrixRow[] = CVES.map((c) => ({
     cve: c,
     totalComponents: 0,
+    prodDeployedServices: 0,
     perService: {},
   }));
   for (const svc of SERVICES) {
@@ -754,9 +844,13 @@ export function buildCVEMatrix(): CVEMatrixRow[] {
       const cell = row.perService[svc.id] ?? {
         componentCount: 0,
         slaStatus: "within",
-        state: "backlog",
+        state: "backlog" as const,
+        runtime: inst.runtime,
+        serviceVersion: v.version,
       };
       cell.componentCount += 1;
+      cell.serviceVersion = v.version;
+      cell.runtime = inst.runtime;
       // Worst-of policy: breached > no_data > within
       if (
         inst.slaStatus === "breached" ||
@@ -771,5 +865,11 @@ export function buildCVEMatrix(): CVEMatrixRow[] {
       row.totalComponents += 1;
     }
   }
-  return rows.filter((r) => r.totalComponents > 0);
+  const filtered = rows.filter((r) => r.totalComponents > 0);
+  for (const row of filtered) {
+    row.prodDeployedServices = Object.values(row.perService).filter(
+      (c) => c && c.runtime.deployed
+    ).length;
+  }
+  return filtered;
 }

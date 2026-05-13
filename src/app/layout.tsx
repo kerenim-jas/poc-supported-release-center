@@ -14,7 +14,7 @@ const openSans = Open_Sans({
 export const metadata: Metadata = {
   title: "Supported Release Center — JFrog",
   description:
-    "Internal alignment POC for the Supported Release Center. Cores, Services, SLA-driven vulnerability lifecycle, and CVE×Service matrix.",
+    "Internal POC: CVE × Service triage matrix with runtime exposure overlays (fixture data).",
 };
 
 export default function RootLayout({
