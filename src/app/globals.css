@@ -1,0 +1,170 @@
+@import "tailwindcss";
+
+/*
+ * JFrog Design System tokens — extracted from Figma file
+ * https://www.figma.com/design/cjzhDLB2uHfmtVNCCiQPaH/Live-Assessment
+ * Open Sans is loaded by next/font in layout.tsx — exposed as --font-sans
+ */
+:root {
+  /* Surface */
+  --surface-primary: #ffffff;
+  --surface-secondary: #f8fafb;
+  --surface-tertiary: #eef3f8;
+  --surface-tertiary-inverse: #415980;
+  --background-plain: #eaeef5;
+
+  /* Sidebar (darker than navy/600) */
+  --sidebar-bg: #2c3955;
+  --sidebar-bg-hover: #3a486a;
+  --sidebar-bg-active: #1f2a40;
+  --sidebar-text: #c9d0e3;
+  --sidebar-text-active: #ffffff;
+
+  /* Text */
+  --text-primary: #414857;
+  --text-secondary: #5e6d81;
+  --text-tertiary: #999db4;
+  --text-active: #415980;
+  --text-inverse: #ffffff;
+
+  /* Border */
+  --border-primary: #eaeef5;
+  --border-secondary: #c9d0e3;
+  --border-tertiary: #7e8194;
+  --border-quaternary: #b4bacc;
+  --border-brand: #3eb065;
+
+  /* Brand greens */
+  --green-100: #edfce8;
+  --green-500: #3eb065;
+
+  /* Brand navy */
+  --navy-100: #eef3f8;
+  --navy-200: #d2dfed;
+  --navy-500: #708cb2;
+  --navy-600: #415980;
+
+  /* Status */
+  --red-100: #fff1f2;
+  --red-200: #fedcde;
+  --red-500: #e93838;
+  --red-600: #b91c1c;
+  --orange-500: #f59e0b;
+  --orange-100: #fff7ec;
+  --yellow-500: #ffcf31;
+
+  /* Icons */
+  --icon-primary: #414857;
+  --icon-secondary: #5e6d81;
+  --icon-tertiary: #999db4;
+
+  /* Gray */
+  --gray-200: #eaeef5;
+  --gray-300: #c9d0e3;
+  --gray-400: #b4bacc;
+
+  /* Spacing */
+  --space-3xs: 2px;
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-s: 12px;
+  --space-m: 16px;
+  --space-l: 20px;
+  --space-xl: 24px;
+
+  /* Radius */
+  --radius-xs: 2px;
+  --radius-s: 4px;
+  --radius-m: 6px;
+
+}
+
+@theme inline {
+  --color-background: var(--background-plain);
+  --color-foreground: var(--text-primary);
+  --color-surface: var(--surface-primary);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-tertiary: var(--surface-tertiary);
+  --color-sidebar-bg: var(--sidebar-bg);
+  --color-sidebar-text: var(--sidebar-text);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-active: var(--text-active);
+
+  --color-border-primary: var(--border-primary);
+  --color-border-secondary: var(--border-secondary);
+  --color-border-tertiary: var(--border-tertiary);
+  --color-border-brand: var(--border-brand);
+
+  --color-green-500: var(--green-500);
+  --color-green-100: var(--green-100);
+  --color-navy-100: var(--navy-100);
+  --color-navy-200: var(--navy-200);
+  --color-navy-500: var(--navy-500);
+  --color-navy-600: var(--navy-600);
+  --color-red-500: var(--red-500);
+  --color-red-100: var(--red-100);
+  --color-red-200: var(--red-200);
+  --color-orange-500: var(--orange-500);
+  --color-orange-100: var(--orange-100);
+
+  --font-sans: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: var(--background-plain);
+  color: var(--text-primary);
+  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  font-size: 14px;
+  line-height: 22px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--green-100);
+  color: var(--green-500);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
+}
+
+/* Typography utilities matching Figma */
+.text-h3 {
+  font-size: 18px;
+  line-height: 25px;
+  font-weight: 600;
+}
+.text-body {
+  font-size: 14px;
+  line-height: 22px;
+}
+.text-body-semibold {
+  font-size: 14px;
+  line-height: 19px;
+  font-weight: 600;
+}
+.text-label {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+}
