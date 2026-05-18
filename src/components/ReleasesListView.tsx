@@ -4,12 +4,12 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   MoreHorizontal,
-  Activity,
   CheckCircle2,
   CircleSlash,
+  ShieldAlert,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
-import type { SupportedRelease } from "@/lib/types";
+import type { RuntimeState, Severity, SupportedRelease } from "@/lib/types";
 import {
   RELEASES,
   sortReleasesForList,
@@ -18,38 +18,12 @@ import {
 } from "@/lib/fixtures";
 import { cn } from "@/lib/cn";
 
-type CoreFilter =
-  | "all"
-  | "artifactory"
-  | "xray"
-  | "platform"
-  | "apptrust"
-  | "ml";
-
-const CORE_RULES: { id: CoreFilter; label: string; test?: (name: string) => boolean }[] =
-  [
-    { id: "all", label: "All cores" },
-    {
-      id: "artifactory",
-      label: "Artifactory",
-      test: (n) => n.includes("artifactory"),
-    },
-    { id: "xray", label: "Xray", test: (n) => n.startsWith("xray") },
-    {
-      id: "platform",
-      label: "Platform",
-      test: (n) =>
-        ["access", "metadata", "platform-", "connect-server"].some((x) =>
-          n.startsWith(x),
-        ),
-    },
-    {
-      id: "apptrust",
-      label: "AppTrust",
-      test: (n) => n.includes("apptrust"),
-    },
-    { id: "ml", label: "AI/ML", test: (n) => n.startsWith("ml-") },
-  ];
+const ALL_SEVERITIES: Severity[] = ["critical", "high", "medium", "low"];
+const ALL_RUNTIME_STATES: RuntimeState[] = [
+  "running",
+  "integrity_violation",
+  "not_running",
+];
 
 function lifecycleRank(st: SupportedRelease["cves"][number]["state"]) {
   const idx = ["backlog", "action", "released", "rolled_out"] as const;
@@ -57,7 +31,9 @@ function lifecycleRank(st: SupportedRelease["cves"][number]["state"]) {
   return i === -1 ? 0 : i;
 }
 
-function aggregateLifecycle(r: SupportedRelease): SupportedRelease["cves"][number]["state"] {
+function aggregateLifecycle(
+  r: SupportedRelease,
+): SupportedRelease["cves"][number]["state"] {
   let minRank = Number.POSITIVE_INFINITY;
   let sel: SupportedRelease["cves"][number]["state"] | null = null;
   for (const c of r.cves) {
@@ -146,67 +122,72 @@ function chipActive(active: boolean) {
   );
 }
 
+function initSeverityOn(): Record<Severity, boolean> {
+  return {
+    critical: true,
+    high: true,
+    medium: true,
+    low: true,
+  };
+}
+
+function initRuntimeOn(): Record<RuntimeState, boolean> {
+  return {
+    running: true,
+    integrity_violation: true,
+    not_running: true,
+  };
+}
+
 export function ReleasesListView() {
-  const [core, setCore] = useState<CoreFilter>("all");
-  const [critPlus, setCritPlus] = useState(false);
-  const [hasOpen, setHasOpen] = useState(false);
-  const [running, setRunning] = useState(false);
-  const [customer, setCustomer] = useState(false);
+  const [severityOn, setSeverityOn] = useState(initSeverityOn);
+  const [cveId, setCveId] = useState("");
+  const [runtimeOn, setRuntimeOn] = useState(initRuntimeOn);
   const [stage, setStage] = useState<"any" | "latest" | "supported">("any");
-  const [q, setQ] = useState("");
 
   const sorted = sortReleasesForList(RELEASES);
 
   const filtered = useMemo(() => {
-    const rule = CORE_RULES.find((c) => c.id === core);
+    const allSevOn = ALL_SEVERITIES.every((s) => severityOn[s]);
+    const allRunOn = ALL_RUNTIME_STATES.every((s) => runtimeOn[s]);
+    const cveNeedle = cveId.trim().toLowerCase();
+
     return sorted.filter((r) => {
-      if (rule?.test && !rule.test(r.imageName)) return false;
+      if (!allSevOn) {
+        const allowed = new Set(ALL_SEVERITIES.filter((s) => severityOn[s]));
+        if (!r.cves.some((c) => allowed.has(c.cve.severity))) return false;
+      }
 
-      const openCrit = r.cves.some(
-        (c) =>
-          c.cve.severity === "critical" &&
-          c.state !== "rolled_out",
-      );
-      const anyOpen = r.cves.some((c) => c.state !== "rolled_out");
+      if (
+        cveNeedle &&
+        !r.cves.some((c) => c.cve.id.toLowerCase().includes(cveNeedle))
+      ) {
+        return false;
+      }
 
-      if (critPlus && !openCrit) return false;
-
-      if (hasOpen && !anyOpen) return false;
-
-      if (running && !r.runtime.isRunning) return false;
-
-      if (customer && r.customerImpact <= 1) return false;
+      if (!allRunOn && !runtimeOn[r.runtime.state]) return false;
 
       if (stage === "latest" && r.supportTier !== "latest") return false;
-      if (stage === "supported" && r.supportTier !== "supported") return false;
-
-      const needle = q.trim().toLowerCase();
-      if (needle) {
-        const hay = `${r.imageName} ${r.version} ${r.cves.map((c) => c.cve.id).join(" ")}`.toLowerCase();
-        if (!hay.includes(needle)) return false;
-      }
+      if (stage === "supported" && r.supportTier !== "supported")
+        return false;
 
       return true;
     });
-  }, [
-    sorted,
-    core,
-    critPlus,
-    hasOpen,
-    running,
-    customer,
-    stage,
-    q,
-  ]);
+  }, [sorted, severityOn, cveId, runtimeOn, stage]);
+
+  function toggleSeverity(s: Severity) {
+    setSeverityOn((prev) => ({ ...prev, [s]: !prev[s] }));
+  }
+
+  function toggleRuntime(rs: RuntimeState) {
+    setRuntimeOn((prev) => ({ ...prev, [rs]: !prev[rs] }));
+  }
 
   function borderUrgency(r: SupportedRelease) {
     const w = worstSlaForRelease(r);
     if (w.status === "breached")
       return "border-l-[3px] border-l-[color:var(--red-500)]";
-    if (
-      w.status === "within" &&
-      (w.daysRemaining ?? 999) <= 2
-    )
+    if (w.status === "within" && (w.daysRemaining ?? 999) <= 2)
       return "border-l-[3px] border-l-[color:var(--orange-500)]";
     return "border-l-[3px] border-l-transparent";
   }
@@ -215,9 +196,8 @@ export function ReleasesListView() {
     <div className="mx-auto max-w-[1400px] px-6 pb-12 pt-6">
       <PageHeader
         crumbs={[
-          { label: "All Projects" },
-          { label: "AppTrust" },
-          { label: "Supported Releases", href: "/" },
+          { label: "All Projects", href: "/" },
+          { label: "Supported Releases", href: "/releases/" },
           { label: "All" },
         ]}
       />
@@ -227,77 +207,93 @@ export function ReleasesListView() {
           <h1 className="text-[24px] font-semibold leading-tight text-[color:var(--text-primary)]">
             Supported Releases
           </h1>
-          <p className="mt-1 text-[13px] text-[color:var(--text-secondary)]">
-            Trusted ∩ SLA-supported docker lines only · Runtime shows &nbsp;
-            <em>Is it running?</em>, not exposures.
-          </p>
           <span className="mt-3 inline-flex items-center rounded-md bg-[color:var(--navy-100)] px-2 py-0.5 text-[12px] font-semibold text-[color:var(--navy-600)]">
             {filtered.length} Trusted+Supported
           </span>
         </div>
-        <div className="w-full lg:max-w-[320px]">
-          <label className="sr-only" htmlFor="rel-search">
-            Search by image or CVE
-          </label>
-          <input
-            id="rel-search"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search by image or CVE"
-            className="h-9 w-full rounded-md border border-[color:var(--border-secondary)] bg-white px-3 text-[13px] outline-none ring-[color:var(--navy-500)] focus:ring-2"
-          />
-        </div>
       </div>
 
-      <div className="mb-6 flex flex-wrap gap-2">
-        {CORE_RULES.map((c) => (
-          <button
-            key={c.id}
-            type="button"
-            className={chipActive(core === c.id)}
-            onClick={() => setCore(c.id)}
+      <div className="mb-6 space-y-5">
+        <div>
+          <div className="mb-2 text-[12px] font-semibold uppercase text-[color:var(--text-secondary)]">
+            Severity
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {ALL_SEVERITIES.map((s) => (
+              <button
+                key={s}
+                type="button"
+                className={chipActive(severityOn[s])}
+                onClick={() => toggleSeverity(s)}
+              >
+                {s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label
+            className="mb-2 block text-[12px] font-semibold uppercase text-[color:var(--text-secondary)]"
+            htmlFor="cve-id-filter"
           >
-            {c.label}
-          </button>
-        ))}
-        <button
-          type="button"
-          className={chipActive(critPlus)}
-          onClick={() => setCritPlus(!critPlus)}
-        >
-          Sev ≥ Crit
-        </button>
-        <button
-          type="button"
-          className={chipActive(hasOpen)}
-          onClick={() => setHasOpen(!hasOpen)}
-        >
-          Open CVE
-        </button>
-        <button
-          type="button"
-          className={chipActive(running)}
-          onClick={() => setRunning(!running)}
-        >
-          Is Running
-        </button>
-        <button
-          type="button"
-          className={chipActive(customer)}
-          onClick={() => setCustomer(!customer)}
-        >
-          Cust impact
-        </button>
-        {(["any", "latest", "supported"] as const).map((st) => (
-          <button
-            key={st}
-            type="button"
-            className={chipActive(stage === st)}
-            onClick={() => setStage(st)}
-          >
-            Stage: {st}
-          </button>
-        ))}
+            CVE ID
+          </label>
+          <input
+            id="cve-id-filter"
+            value={cveId}
+            onChange={(e) => setCveId(e.target.value)}
+            placeholder="e.g. CVE-2026-29145"
+            className="h-9 max-w-md rounded-md border border-[color:var(--border-secondary)] bg-white px-3 text-[13px] outline-none ring-[color:var(--navy-500)] focus:ring-2"
+          />
+        </div>
+
+        <div>
+          <div className="mb-2 text-[12px] font-semibold uppercase text-[color:var(--text-secondary)]">
+            Runtime status
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className={chipActive(runtimeOn.running)}
+              onClick={() => toggleRuntime("running")}
+            >
+              Running
+            </button>
+            <button
+              type="button"
+              className={chipActive(runtimeOn.integrity_violation)}
+              onClick={() => toggleRuntime("integrity_violation")}
+            >
+              Integrity Violation
+            </button>
+            <button
+              type="button"
+              className={chipActive(runtimeOn.not_running)}
+              onClick={() => toggleRuntime("not_running")}
+            >
+              Not Running
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 text-[12px] font-semibold uppercase text-[color:var(--text-secondary)]">
+            Stage
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {(["any", "latest", "supported"] as const).map((st) => (
+              <button
+                key={st}
+                type="button"
+                className={chipActive(stage === st)}
+                onClick={() => setStage(st)}
+              >
+                {st === "any" ? "Any" : st === "latest" ? "Latest" : "Supported"}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="overflow-auto rounded-lg border border-[color:var(--border-primary)] bg-white shadow-sm">
@@ -307,12 +303,18 @@ export function ReleasesListView() {
               <th className="sticky top-0 px-4 py-3 font-semibold">
                 Docker image · path
               </th>
-              <th className="sticky top-0 px-4 py-3 font-semibold">Version · trust</th>
+              <th className="sticky top-0 px-4 py-3 font-semibold">
+                Version · trust
+              </th>
               <th className="sticky top-0 px-4 py-3 font-semibold">Running</th>
               <th className="sticky top-0 px-4 py-3 font-semibold">Open CVE</th>
               <th className="sticky top-0 px-4 py-3 font-semibold">SLA window</th>
-              <th className="sticky top-0 px-4 py-3 font-semibold">Fix lifecycle</th>
-              <th className="sticky top-0 px-4 py-3 font-semibold">Last promoted</th>
+              <th className="sticky top-0 px-4 py-3 font-semibold">
+                Fix lifecycle
+              </th>
+              <th className="sticky top-0 px-4 py-3 font-semibold">
+                Last promoted
+              </th>
               <th className="sticky top-0 px-4 py-3 font-semibold" />
             </tr>
           </thead>
@@ -349,9 +351,7 @@ export function ReleasesListView() {
                         </span>
                       )}
                       <span className="rounded-full bg-[color:var(--navy-100)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[color:var(--navy-600)]">
-                        {r.supportTier === "latest"
-                          ? "Latest"
-                          : "Supported"}
+                        {r.supportTier === "latest" ? "Latest" : "Supported"}
                       </span>
                     </div>
                   </td>
@@ -374,14 +374,19 @@ export function ReleasesListView() {
                     <LifecycleStepBar current={lcState} />
                   </td>
                   <td className="px-4 py-3 align-middle text-[12px] text-[color:var(--text-secondary)]">
-                    {formatShort(r.timeline[r.timeline.length - 1]?.ts ?? r.lastUpdated)} ·{" "}
+                    {formatShort(
+                      r.timeline[r.timeline.length - 1]?.ts ?? r.lastUpdated,
+                    )}{" "}
+                    ·{" "}
                     <span className="font-semibold text-[color:var(--text-primary)]">
                       {(() => {
                         const idx = [...r.timeline]
                           .map((ev, i) => ({ ev, i }))
                           .filter(({ ev }) => ev.kind === "release")
                           .pop()?.i;
-                        return typeof idx === "number" ? "STAGING→PROD" : `${r.currentStage}`;
+                        return typeof idx === "number"
+                          ? "STAGING→PROD"
+                          : `${r.currentStage}`;
                       })()}
                     </span>
                   </td>
@@ -439,20 +444,41 @@ function SLAPill({
 }
 
 function RunningBadge({ r }: { r: SupportedRelease }) {
-  const tip = `${r.runtime.clusters.map((c) => `${c.name}: ${c.rolloutPercent}%`).join("; ") || "No prod clusters synced"}`;
-  return (
-    <span title={tip}>
-      {r.runtime.isRunning ? (
-        <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--green-100)] px-2 py-1 text-[11px] font-semibold text-[color:var(--green-500)]">
-          <Activity className="h-3.5 w-3.5" />
+  const clusterTip = `${r.runtime.clusters.map((c) => `${c.name}: ${c.rolloutPercent}%`).join("; ") || "No prod clusters synced"}`;
+  const integrityTip =
+    "Workload is running but has drifted from the released image.";
+
+  if (r.runtime.state === "running") {
+    return (
+      <span title={clusterTip} className="inline-flex cursor-default">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--green-100)] px-2 py-1 text-[11px] font-semibold text-[color:var(--green-500)]">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[color:var(--green-500)] opacity-40" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[color:var(--green-500)]" />
+          </span>
           Running
         </span>
-      ) : (
-        <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--surface-secondary)] px-2 py-1 text-[11px] font-semibold text-[color:var(--text-tertiary)]">
-          <CircleSlash className="h-3.5 w-3.5" />
-          Idle
+      </span>
+    );
+  }
+
+  if (r.runtime.state === "integrity_violation") {
+    return (
+      <span title={integrityTip} className="inline-flex cursor-default">
+        <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--orange-100)] px-2 py-1 text-[11px] font-semibold text-[color:var(--orange-600)]">
+          <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
+          Integrity Violation
         </span>
-      )}
+      </span>
+    );
+  }
+
+  return (
+    <span title={clusterTip} className="inline-flex cursor-default">
+      <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--surface-secondary)] px-2 py-1 text-[11px] font-semibold text-[color:var(--text-tertiary)]">
+        <CircleSlash className="h-3.5 w-3.5" />
+        Idle
+      </span>
     </span>
   );
 }

@@ -78,13 +78,11 @@ export function PolicyView() {
     <div className="mx-auto max-w-[960px] px-6 pb-16 pt-6">
       <PageHeader
         crumbs={[
-          { label: "All Projects" },
-          { label: "AppTrust" },
+          { label: "All Projects", href: "/" },
           { label: "Supported Releases", href: "/releases/" },
           { label: "SLA Policy" },
         ]}
         title="SLA policy · Supported Release Center"
-        subtitle="Policy applies to Trusted releases that still meet the active support window (Trusted ∩ Supported)."
       />
 
       <section className="mt-8 space-y-8">

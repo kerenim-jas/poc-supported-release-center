@@ -8,8 +8,10 @@ export type SupportTier = "latest" | "supported" | "out_of_support";
 export type LifecycleState = "backlog" | "action" | "released" | "rolled_out";
 export type SLAStatus = "within" | "breached" | "no_data";
 
+export type RuntimeState = "running" | "integrity_violation" | "not_running";
+
 export interface RuntimeStatus {
-  isRunning: boolean;
+  state: RuntimeState;
   clusters: { name: string; rolloutPercent: number }[];
   totalRolloutPercent: number;
 }

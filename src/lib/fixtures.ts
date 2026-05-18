@@ -345,7 +345,7 @@ export const RELEASES: SupportedRelease[] = [
     sizeBytes: 892_663_912,
     customerImpact: 12,
     runtime: {
-      isRunning: true,
+      state: "running",
       clusters: clustersFull(),
       totalRolloutPercent: 100,
     },
@@ -388,7 +388,7 @@ export const RELEASES: SupportedRelease[] = [
     sizeBytes: 1_102_938_811,
     customerImpact: 47,
     runtime: {
-      isRunning: true,
+      state: "running",
       clusters: clustersFull(),
       totalRolloutPercent: 100,
     },
@@ -433,7 +433,7 @@ export const RELEASES: SupportedRelease[] = [
     sizeBytes: 621_884_392,
     customerImpact: 31,
     runtime: {
-      isRunning: true,
+      state: "running",
       clusters: clustersFull(),
       totalRolloutPercent: 100,
     },
@@ -473,7 +473,7 @@ export const RELEASES: SupportedRelease[] = [
     sizeBytes: 112_938_811,
     customerImpact: 8,
     runtime: {
-      isRunning: true,
+      state: "integrity_violation",
       clusters: clustersFull(),
       totalRolloutPercent: 100,
     },
@@ -505,7 +505,7 @@ export const RELEASES: SupportedRelease[] = [
     sizeBytes: 401_220_512,
     customerImpact: 6,
     runtime: {
-      isRunning: false,
+      state: "not_running",
       clusters: [],
       totalRolloutPercent: 0,
     },
@@ -537,7 +537,7 @@ export const RELEASES: SupportedRelease[] = [
     sizeBytes: 238_112_900,
     customerImpact: 19,
     runtime: {
-      isRunning: true,
+      state: "running",
       clusters: [
         { name: "us-east-1-prod", rolloutPercent: 100 },
         { name: "eu-central-1-prod", rolloutPercent: 50 },
@@ -574,7 +574,7 @@ export const RELEASES: SupportedRelease[] = [
     sizeBytes: 188_220_512,
     customerImpact: 54,
     runtime: {
-      isRunning: true,
+      state: "running",
       clusters: clustersFull(),
       totalRolloutPercent: 100,
     },
@@ -606,7 +606,7 @@ export const RELEASES: SupportedRelease[] = [
     sizeBytes: 122_938_811,
     customerImpact: 3,
     runtime: {
-      isRunning: false,
+      state: "not_running",
       clusters: [],
       totalRolloutPercent: 0,
     },
@@ -630,7 +630,7 @@ export const RELEASES: SupportedRelease[] = [
     sizeBytes: 432_938_811,
     customerImpact: 22,
     runtime: {
-      isRunning: true,
+      state: "integrity_violation",
       clusters: clustersFull(),
       totalRolloutPercent: 100,
     },
@@ -662,7 +662,7 @@ export const RELEASES: SupportedRelease[] = [
     sizeBytes: 212_938_811,
     customerImpact: 9,
     runtime: {
-      isRunning: true,
+      state: "running",
       clusters: clustersFull(),
       totalRolloutPercent: 100,
     },
@@ -686,7 +686,7 @@ export const RELEASES: SupportedRelease[] = [
     sizeBytes: 1_432_938_811,
     customerImpact: 1,
     runtime: {
-      isRunning: false,
+      state: "not_running",
       clusters: [{ name: "staging-use1", rolloutPercent: 100 }],
       totalRolloutPercent: 100,
     },
@@ -718,7 +718,7 @@ export const RELEASES: SupportedRelease[] = [
     sizeBytes: 52_938_811,
     customerImpact: 0,
     runtime: {
-      isRunning: true,
+      state: "integrity_violation",
       clusters: clustersFull(),
       totalRolloutPercent: 100,
     },

@@ -37,7 +37,10 @@ export function DashboardView() {
   const dreamRows = SHOW_EMPTY_DREAM_WIDGET ? [] : dreamRowsRaw;
 
   const prodRunning = RELEASES.filter(
-    (r) => r.runtime.isRunning && r.currentStage === "PROD",
+    (r) =>
+      (r.runtime.state === "running" ||
+        r.runtime.state === "integrity_violation") &&
+      r.currentStage === "PROD",
   ).length;
   const runningPct =
     RELEASES.length > 0
@@ -53,8 +56,7 @@ export function DashboardView() {
     <div className="mx-auto flex min-h-full max-w-[1280px] flex-col px-6 pb-10">
       <PageHeader
         crumbs={[
-          { label: "All Projects" },
-          { label: "AppTrust" },
+          { label: "All Projects", href: "/" },
           { label: "Supported Releases", href: "/releases/" },
           { label: "Dashboard" },
         ]}

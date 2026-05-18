@@ -17,7 +17,6 @@ const TAB_LABELS = [
   "Version Timeline",
   "Affected CVEs",
   "Content",
-  "Content Graph",
   "Evidence",
   "Risk",
 ] as const;
@@ -91,8 +90,7 @@ export function ReleaseDetailView({
     <div className="mx-auto flex min-h-full max-w-[1380px] flex-col px-6 pb-12 pt-6">
       <PageHeader
         crumbs={[
-          { label: "All Projects" },
-          { label: "AppTrust" },
+          { label: "All Projects", href: "/" },
           { label: "Supported Releases", href: "/releases/" },
           { label: initial.imageName, href: "/releases/" },
           { label: initial.version },
@@ -177,10 +175,10 @@ export function ReleaseDetailView({
           <FactCard title="Runtime">
             <div className="space-y-2 text-[13px]">
               <p>
-                <strong>Is Running:</strong>{" "}
-                {initial.runtime.isRunning ? (
+                <strong>Status:</strong>{" "}
+                {initial.runtime.state === "running" ? (
                   <>
-                    Yes ·{" "}
+                    Running ·{" "}
                     <span className="font-semibold">
                       {
                         initial.runtime.clusters.filter(
@@ -190,6 +188,11 @@ export function ReleaseDetailView({
                       /{initial.runtime.clusters.length || 4}
                     </span>{" "}
                     clusters healthy · {initial.runtime.totalRolloutPercent}% rollout snapshot
+                  </>
+                ) : initial.runtime.state === "integrity_violation" ? (
+                  <>
+                    Integrity violation — workload live but drifted from released
+                    image · {initial.runtime.totalRolloutPercent}% rollout snapshot
                   </>
                 ) : (
                   "No active prod heartbeat on this SKU"
@@ -222,12 +225,9 @@ export function ReleaseDetailView({
             <FactRow label="Artifact size">{formatBytes(initial.sizeBytes)}</FactRow>
           </FactCard>
 
-          <FactCard title="Customer impact">
+          <FactCard title="Tenants on this version">
             <p className="text-[22px] font-bold text-[color:var(--navy-600)]">
-              {initial.customerImpact} SaaS tenants
-            </p>
-            <p className="text-[12px] text-[color:var(--text-secondary)]">
-              Decorative rollup — aligns with Trusted+Supported surface.
+              {initial.customerImpact}
             </p>
           </FactCard>
 
@@ -276,11 +276,6 @@ export function ReleaseDetailView({
                   <li>OCI index references <strong>3 linux/amd64</strong> manifests + attestations envelope.</li>
                   <li>SBOM fingerprints align with Evidence tab CycloneDX linkage.</li>
                 </ul>
-              </div>
-            )}
-            {tab === "Content Graph" && (
-              <div className="py-24 text-center text-[14px] text-[color:var(--text-secondary)]">
-                Coming soon — graph stays in AppTrust; Release Center favors lifecycle & SLA fidelity.
               </div>
             )}
             {tab === "Evidence" && <EvidencePane release={initial} />}
@@ -591,7 +586,7 @@ function RiskPane({ release }: { release: SupportedRelease }) {
       </div>
       <div className="rounded-lg border border-[color:var(--border-primary)] p-6">
         <h4 className="text-[13px] font-semibold uppercase text-[color:var(--text-secondary)]">
-          Customer propagation
+          Tenants on this version
         </h4>
         <p className="mt-2 text-[26px] font-bold">{release.customerImpact}</p>
       </div>
