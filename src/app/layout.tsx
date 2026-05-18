@@ -12,9 +12,9 @@ const openSans = Open_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Supported Release Center — JFrog",
+  title: "Trusted + Supported Release Center — JFrog",
   description:
-    "Internal POC: CVE × Service triage matrix with runtime exposure overlays (fixture data).",
+    "Internal POC v0.4 — AppTrust-styled Trusted ∩ Supported Docker releases with SLA + fix lifecycle. Runtime surfaces “Is Running” only.",
 };
 
 export default function RootLayout({

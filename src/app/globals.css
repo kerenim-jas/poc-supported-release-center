@@ -77,6 +77,18 @@
   --radius-s: 4px;
   --radius-m: 6px;
 
+  /* JFrog Platform chrome (light shell — AppTrust reference) */
+  --platform-teal-wordmark: #0d4a52;
+  --platform-teal-accent: #0b6e7f;
+  --platform-sidebar-bg: #eef2f6;
+  --platform-sidebar-border: #dbe3ea;
+  --platform-nav-active-bg: rgba(62, 176, 101, 0.16);
+  --platform-nav-active-bar: var(--green-500);
+  --platform-switcher-fill: #e3e9f2;
+  --platform-alert-yellow-bg: #fff8e6;
+  --platform-alert-yellow-border: #ffe1a8;
+  --platform-post-release-border: #ff8fab;
+  --platform-post-release-bg: #fff8fa;
 }
 
 @theme inline {

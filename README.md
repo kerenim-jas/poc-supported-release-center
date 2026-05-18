@@ -1,76 +1,91 @@
-# poc-supported-release-center — v0.3
+# poc-supported-release-center — v0.4
 
-> **Internal alignment POC** for the JFrog Supported Release Center.
-> Built from Barak Haryati&rsquo;s SSDLC dashboard context and Ambarish&rsquo;s
-> CVE&times;Service matrix — **v0.3 is a single-screen pivot**: the matrix is
-> the product surface, with **mock runtime / Wiz-style exposure** wired per cell.
+> Internal POC: **Trusted + Supported Release Center**. This drop mirrors **JFrog Platform / AppTrust** chrome fidelity while reframing runtime as an **Is it running?** rollup only (no exposures deep-dive).
 
-## Live preview
-
+**Live demo:**  
 [https://kerenim-jas.github.io/poc-supported-release-center/](https://kerenim-jas.github.io/poc-supported-release-center/)
 
-Password: `supported-releases-2026`
+Password (unchanged): `supported-releases-2026`
 
-## Why a single screen?
+---
 
-After v0.2 shipped six navigation tabs, feedback was blunt: **the CVE&times;Service
-matrix is the real deliverable** — the “Ambarish Excel” view — and the rest read
-as context switching, not incremental insight. Separately, showing CVEs without
-any sense of **what is running in prod, reachable in process, or internet-facing**
-felt like a static report, not a triage workspace.
+## What changed from v0.3
 
-So v0.3 **drops Cores landing, Core/Services grids, Service detail, lifecycle
-diagram, and SLA policy pages**. One full-height application view: filtered
-heatmap + slide-in CVE intelligence + runtime badges. Fixtures still carry the
-same org-aligned services and CVE catalog; overlays are synthesized for demo
-purposes.
+| v0.3 | v0.4 |
+| --- | --- |
+| Single CVE×Service matrix workspace | Four-screen Trusted ∩ Supported navigator |
+| Emphasis on Wiz-style overlays per matrix cell | Runtime limited to rollout + heartbeat hints |
+| No AppTrust breadcrumbs / evidence tables | Sidebar + breadcrumbs + Evidence tab match AppTrust language |
 
-## What ships in v0.3
+All matrix-only components were removed (`MatrixApp`, old shell). Data is now modeled as **`SupportedRelease` docker lines intersecting SLA policy.**
 
-| Area | Behavior |
-|---|---|
-| Matrix home (`/`) | Tile heatmap: rows = CVEs (severity then prod exposure), columns = services grouped by Core |
-| Filters | Left rail: severity, applicability, package ecosystem, runtime signals, cores, owner search |
-| Runtime | Per cell: deployed / reachable / internet-facing / customer impact (+ mock pods & clusters when deployed) |
-| Detail | Right drawer: CVE summary, blast radius list, runtime subsection, decorative actions |
+---
 
-See [docs/matrix-walkthrough.md](docs/matrix-walkthrough.md) for how to demo the layout to stakeholders.
+## Strategic position
 
-## Local development
+- Persona pivot: Release Manager / Release Coordinator **morning view** (distinct from SecOps triage dashboards like Wiz).
+- Canonical filter: **`Trusted ∩ Supported`** — Trusted evidence from AppTrust / RBv2 / ssdlc, Supported per active SLA playbook; anything outside the window disappears automatically from the POC list.
+- **Asaf dream widget**: *Post-Release | Newly Detected Critical CVEs on Supported Releases* — should default to smiles; demo ships with sample rows + `SHOW_EMPTY_DREAM_WIDGET` toggle in `DashboardView.tsx`.
+- Fix lifecycle language follows Barak’s agent pattern: **Backlog → Action → Released → Rolled-out** with SLA pills.
+
+---
+
+## Screens
+
+1. **`/` · Dashboard** — Overview card, dream widget, bottleneck card, KPI tiles, recent timeline.
+2. **`/releases/` · Supported list** — Filter chips, search, urgency borders, lifecycle stepper, running badge.
+3. **`/releases/[id]/`** — AppTrust-style version page: left metadata + runtime card, tabs (Timeline, CVEs, Content, Graph placeholder, Evidence, Risk).
+4. **`/policy/` · SLA policy** — Support window, severity coverage by tier, SLA durations, automation toggles (decorative save).
+
+---
+
+## Local dev
 
 ```bash
+cd /Users/kerenim/MCP/poc-supported-release-center
 npm install
 npm run dev
-# open http://localhost:3000
 ```
 
-## Deploy
-
-GitHub Actions auto-deploys on push to `main`. The site is published at the URL above.
-
-If `npm ci` fails with `403 Forbidden` from `jfrogrepo24.jfrog.io`, the lockfile contains internal Artifactory references — rewrite with:
+Static export (GitHub Pages):
 
 ```bash
-sed -i '' 's|https://jfrogrepo24.jfrog.io/artifactory/api/npm/npm-virtual|https://registry.npmjs.org|g' package-lock.json
+npm run build   # writes to out/
 ```
 
-## File map
+Base path remains `/poc-supported-release-center` per `next.config.ts` (do not change for this repo).
+
+---
+
+## Docs
+
+- [`docs/release-center-walkthrough.md`](docs/release-center-walkthrough.md) — three stakeholder walkthroughs + design notes.
+
+---
+
+## File map (v0.4)
 
 ```
 src/
   app/
-    page.tsx                    Home — CVE × Service matrix application
-    layout.tsx                  App shell + password gate wrapper
-    globals.css                 JFrog design tokens
+    layout.tsx
+    page.tsx                 # Dashboard
+    globals.css
+    releases/page.tsx
+    releases/[id]/page.tsx
+    policy/page.tsx
   components/
-    MatrixApp.tsx               Client matrix + filters + slide-in CVE panel
-    AppShell.tsx                Sidebar + chrome
-    LeftSidebar.tsx             JFrog platform-style icon rail (Supported Releases active)
-    ProductHeader.tsx           Product title, tenant/quarter labels (no tabs)
-    TopBar.tsx                  Platform top bar chrome
-    PasswordGate.tsx            Client-side password gate (unchanged)
+    AppShell.tsx
+    JFrogTopBar.tsx
+    JFrogSidebar.tsx
+    PageHeader.tsx
+    PasswordGate.tsx         # unchanged contract
+    DashboardView.tsx
+    ReleasesListView.tsx
+    ReleaseDetailView.tsx
+    PolicyView.tsx
   lib/
-    types.ts                    Core, Service, CVE, CVEInstance, RuntimeSignal, CVEMatrixRow
-    fixtures.ts                 Mirrors JFrog cores/services/CVEs + runtime injection pass
+    types.ts
+    fixtures.ts
     cn.ts
 ```
