@@ -1,24 +1,40 @@
 /**
- * Fixture data — v0.4 Trusted ∩ Supported Release Center (~12 Docker releases).
+ * Fixture data — v0.5 Application-centric Trusted ∩ Supported Release Center.
  * CVE catalog condensed from legacy v0.3 fixtures.
  *
- * DEMO: Toggle empty dream widget → see `SHOW_EMPTY_DREAM_WIDGET` in DashboardScreen.tsx
+ * DEMO: Toggle empty dream widget → see `SHOW_EMPTY_DREAM_WIDGET` in DashboardView.tsx
  */
 
 import type {
+  Application,
   CVE,
   CVEInstance,
   Evidence,
   FixBottleneck,
   PromotionEvent,
   SupportedRelease,
-  SLAStatus,
   LifecycleState,
+  SLAStatus,
   SLAPolicyConfig,
-  Severity,
   DashboardActivity,
   RuntimeStatus,
 } from "./types";
+import { enrichRelease } from "./fixture-enrich";
+import {
+  countOpenBySeverity,
+  sortReleasesForList,
+  sortApplicationsForList,
+  urgencyRank,
+  worstSlaForRelease,
+} from "./findings";
+
+export {
+  countOpenBySeverity,
+  sortReleasesForList,
+  sortApplicationsForList,
+  urgencyRank,
+  worstSlaForRelease,
+};
 
 /** Trusted but excluded from Trusted∩Supported rollup (shown in KPI footnote only). */
 export const OUT_OF_SUPPORT_TRUSTED_COUNT = 4;
@@ -27,6 +43,160 @@ export const LAST_REFRESH_ISO = "2026-05-19T07:52:03.000Z";
 export const TENANT_NAME = "JFrog SaaS — Keren Demo";
 export const OVERVIEW_POLICY_BLURB =
   "Critical 5d / High 30d · n−2 minors · 18-month window";
+
+export const SLA_POLICY_SELF_MANAGED = {
+  id: "sla-jfrog-platform-self-managed",
+  name: "JFrog Platform SLA — Self-Managed",
+  sourceUrl:
+    "https://apptrust.jfrog.io/policies/jfrog-platform-self-managed-sla",
+} as const;
+
+export const SLA_POLICY_SAAS = {
+  id: "sla-jfrog-saas",
+  name: "JFrog SaaS SLA",
+  sourceUrl: "https://apptrust.jfrog.io/policies/jfrog-saas-sla",
+} as const;
+
+export const APPLICATIONS: Application[] = [
+  {
+    id: "app-artifactory",
+    name: "JFrog Artifactory",
+    label: "artifactory",
+    description:
+      "Core binary repository — federation, server, and edge routing for artifact lifecycle.",
+    devOwner: {
+      name: "Gal Cohen",
+      email: "gal.cohen@jfrog.com",
+      team: "Artifactory Core",
+    },
+    productOwner: { name: "Ron Peled", email: "ron.peled@jfrog.com" },
+    slaPolicy: SLA_POLICY_SELF_MANAGED,
+    businessCriticality: "tier-1",
+    customerFacing: true,
+    deploymentModel: "both",
+    releaseIds: [
+      "artifactory-federation-2.18.0",
+      "artifactory-server-7.146.10",
+      "artifactory-router-2.94.5",
+    ],
+  },
+  {
+    id: "app-xray",
+    name: "JFrog Xray",
+    label: "xray",
+    description:
+      "Security scanning control plane — server, indexer, and JAS exposures runtime.",
+    devOwner: {
+      name: "Nurit Levy",
+      email: "nurit.levy@jfrog.com",
+      team: "Xray Platform",
+    },
+    productOwner: { name: "Asaf Hefetz", email: "asaf.hefetz@jfrog.com" },
+    slaPolicy: SLA_POLICY_SELF_MANAGED,
+    businessCriticality: "tier-1",
+    customerFacing: true,
+    deploymentModel: "both",
+    releaseIds: [
+      "xray-server-3.110.0",
+      "xray-indexer-3.109.8",
+      "xray-jas-exposures-5.41.18",
+    ],
+  },
+  {
+    id: "app-access",
+    name: "JFrog Access",
+    label: "access",
+    description: "Identity, permissions, and metadata services for the JFrog Platform.",
+    devOwner: {
+      name: "Oded Watts",
+      email: "oded.watts@jfrog.com",
+      team: "Platform Access",
+    },
+    slaPolicy: SLA_POLICY_SELF_MANAGED,
+    businessCriticality: "tier-1",
+    customerFacing: true,
+    deploymentModel: "self_managed",
+    releaseIds: ["access-1.134.41", "metadata-1.71.43"],
+  },
+  {
+    id: "app-apptrust",
+    name: "JFrog AppTrust",
+    label: "apptrust",
+    description: "Trusted release orchestration, SLA policy, and evidence attestation.",
+    devOwner: {
+      name: "Sophie Starchenko",
+      email: "sophie.starchenko@jfrog.com",
+      team: "AppTrust",
+    },
+    slaPolicy: SLA_POLICY_SELF_MANAGED,
+    businessCriticality: "tier-2",
+    customerFacing: true,
+    deploymentModel: "saas",
+    releaseIds: ["apptrust-server-14.82.51"],
+  },
+  {
+    id: "app-connect",
+    name: "JFrog Connect",
+    label: "connect",
+    description: "Hybrid connectivity control plane for edge and SaaS tenants.",
+    devOwner: {
+      name: "Yoni Avidan",
+      email: "yoni.avidan@jfrog.com",
+      team: "Connect",
+    },
+    slaPolicy: SLA_POLICY_SAAS,
+    businessCriticality: "tier-2",
+    customerFacing: true,
+    deploymentModel: "saas",
+    releaseIds: ["connect-server-3.62.91"],
+  },
+  {
+    id: "app-ml",
+    name: "JFrog ML",
+    label: "ml",
+    description: "ML model serving runtime for curated package intelligence.",
+    devOwner: {
+      name: "Itay Sarfati",
+      email: "itay.sarfati@jfrog.com",
+      team: "ML Platform",
+    },
+    slaPolicy: SLA_POLICY_SAAS,
+    businessCriticality: "tier-2",
+    customerFacing: false,
+    deploymentModel: "saas",
+    releaseIds: ["ml-runtime-2.51.72"],
+  },
+  {
+    id: "app-platform-cli",
+    name: "JFrog Platform CLI",
+    label: "platform-cli",
+    description: "Developer CLI for platform automation and release operations.",
+    devOwner: {
+      name: "DevTools Bot",
+      email: "devtools.bot@jfrog.com",
+      team: "Developer Experience",
+    },
+    slaPolicy: SLA_POLICY_SELF_MANAGED,
+    businessCriticality: "tier-3",
+    customerFacing: false,
+    deploymentModel: "both",
+    releaseIds: ["platform-cli-1.118.92"],
+  },
+];
+
+export function getApplication(id: string): Application | undefined {
+  return APPLICATIONS.find((a) => a.id === id);
+}
+
+export function getApplicationForRelease(
+  release: SupportedRelease,
+): Application | undefined {
+  return getApplication(release.applicationId);
+}
+
+export function applicationsUsingPolicy(policyId: string): Application[] {
+  return APPLICATIONS.filter((a) => a.slaPolicy.id === policyId);
+}
 
 export const DEFAULT_SLA_POLICY: SLAPolicyConfig = {
   minorsSupported: 3,
@@ -327,9 +497,13 @@ function timelineGeneric(name: string, stage: string): PromotionEvent[] {
   ];
 }
 
-export const RELEASES: SupportedRelease[] = [
+const BASE_RELEASES: Omit<
+  SupportedRelease,
+  "commit" | "secrets" | "exposures" | "sastFindings" | "contextualAnalysis"
+>[] = [
   {
     id: "artifactory-federation-2.18.0",
+    applicationId: "app-artifactory",
     imageName: "artifactory-federation",
     imagePath:
       "jfrog-docker-releases-remote.jfrog.io/jfrog/artifactory-federation",
@@ -374,6 +548,7 @@ export const RELEASES: SupportedRelease[] = [
   },
   {
     id: "artifactory-server-7.146.10",
+    applicationId: "app-artifactory",
     imageName: "artifactory-server",
     imagePath: "releases-docker.jfrog.io/jfrog/artifactory-pro",
     version: "7.146.10",
@@ -419,6 +594,7 @@ export const RELEASES: SupportedRelease[] = [
   },
   {
     id: "xray-server-3.110.0",
+    applicationId: "app-xray",
     imageName: "xray-server",
     imagePath: "releases-docker.jfrog.io/jfrog/xray-server",
     version: "3.110.0",
@@ -459,6 +635,7 @@ export const RELEASES: SupportedRelease[] = [
   },
   {
     id: "artifactory-router-2.94.5",
+    applicationId: "app-artifactory",
     imageName: "artifactory-router",
     imagePath: "releases-docker.jfrog.io/jfrog/artifactory-router",
     version: "2.94.5",
@@ -491,6 +668,7 @@ export const RELEASES: SupportedRelease[] = [
   },
   {
     id: "xray-indexer-3.109.8",
+    applicationId: "app-xray",
     imageName: "xray-indexer",
     imagePath: "releases-docker.jfrog.io/jfrog/xray-indexer",
     version: "3.109.8",
@@ -523,6 +701,7 @@ export const RELEASES: SupportedRelease[] = [
   },
   {
     id: "xray-jas-exposures-5.41.18",
+    applicationId: "app-xray",
     imageName: "xray-jas-exposures",
     imagePath: "releases-docker.jfrog.io/jfrog/xray-jas-exposures",
     version: "5.41.18",
@@ -560,6 +739,7 @@ export const RELEASES: SupportedRelease[] = [
   },
   {
     id: "access-1.134.41",
+    applicationId: "app-access",
     imageName: "access",
     imagePath: "releases-docker.jfrog.io/jfrog/access",
     version: "1.134.41",
@@ -592,6 +772,7 @@ export const RELEASES: SupportedRelease[] = [
   },
   {
     id: "metadata-1.71.43",
+    applicationId: "app-access",
     imageName: "metadata",
     imagePath: "releases-docker.jfrog.io/jfrog/metadata",
     version: "1.71.43",
@@ -616,6 +797,7 @@ export const RELEASES: SupportedRelease[] = [
   },
   {
     id: "apptrust-server-14.82.51",
+    applicationId: "app-apptrust",
     imageName: "apptrust-server",
     imagePath: "releases-docker.jfrog.io/jfrog/apptrust-server",
     version: "14.82.51",
@@ -648,6 +830,7 @@ export const RELEASES: SupportedRelease[] = [
   },
   {
     id: "connect-server-3.62.91",
+    applicationId: "app-connect",
     imageName: "connect-server",
     imagePath: "releases-docker.jfrog.io/jfrog/connect-server",
     version: "3.62.91",
@@ -672,6 +855,7 @@ export const RELEASES: SupportedRelease[] = [
   },
   {
     id: "ml-runtime-2.51.72",
+    applicationId: "app-ml",
     imageName: "ml-runtime",
     imagePath: "releases-docker.jfrog.io/jfrog/ml-runtime",
     version: "2.51.72",
@@ -704,6 +888,7 @@ export const RELEASES: SupportedRelease[] = [
   },
   {
     id: "platform-cli-1.118.92",
+    applicationId: "app-platform-cli",
     imageName: "platform-cli",
     imagePath: "releases-docker.jfrog.io/jfrog/platform-cli",
     version: "1.118.92",
@@ -728,29 +913,40 @@ export const RELEASES: SupportedRelease[] = [
   },
 ];
 
+export const RELEASES: SupportedRelease[] = BASE_RELEASES.map((r) =>
+  enrichRelease(r),
+);
+
 export const FIX_BOTTLENECKS: FixBottleneck[] = [
   {
     cveId: "CVE-2026-29145",
     service: "artifactory-federation",
+    applicationName: "JFrog Artifactory",
+    releaseVersion: "2.18.0",
     stage: "Released",
     daysInStage: 3,
     detail:
-      "CVE-2026-29145 in artifactory-federation — Released (2/4 clusters rolled out, 3d in stage)",
+      "CVE-2026-29145 in JFrog Artifactory / artifactory-federation 2.18.0 — Released (2/4 clusters rolled out, 3d in stage)",
   },
   {
     cveId: "CVE-2026-29871",
     service: "artifactory-router",
+    applicationName: "JFrog Artifactory",
+    releaseVersion: "2.94.5",
     stage: "Rolled-out",
     daysInStage: 5,
     detail:
-      "High exposure still customer-visible on v2.94.5 while fix propagates tenant-by-tenant",
+      "High exposure still customer-visible on Artifactory router v2.94.5 while fix propagates tenant-by-tenant",
   },
   {
     cveId: "CVE-2026-33815",
     service: "artifactory-server",
+    applicationName: "JFrog Artifactory",
+    releaseVersion: "7.146.10",
     stage: "Released",
     daysInStage: 2,
-    detail: "Fix build shipped; final cluster waiting on maintenance window",
+    detail:
+      "Fix build shipped for Artifactory server 7.146.10; final cluster waiting on maintenance window",
   },
 ];
 
@@ -758,131 +954,109 @@ export const RECENT_ACTIVITY: DashboardActivity[] = [
   {
     ts: "2026-05-19T09:42:00.000Z",
     label:
-      "artifactory-server 7.146.11 promoted DEV→STAGING — Passed (AppTrust gate)",
+      "promoted JFrog Artifactory v7.146.11 from DEV→STAGING — Passed (AppTrust gate)",
     tone: "green",
+    applicationId: "app-artifactory",
   },
   {
     ts: "2026-05-19T09:14:00.000Z",
-    label: "CVE-2026-29145 fix released for artifactory-federation 2.18.1 (build 18291)",
+    label:
+      "JFrog Artifactory — CVE-2026-29145 fix released for federation 2.18.1 (build 18291)",
     tone: "amber",
+    applicationId: "app-artifactory",
   },
   {
     ts: "2026-05-18T18:30:00.000Z",
-    label: "apptrust-server 14.82.51 — SLA reminder: High severity approaching deadline",
+    label:
+      "JFrog AppTrust 14.82.51 — SLA reminder: High severity approaching deadline",
     tone: "amber",
+    applicationId: "app-apptrust",
   },
   {
     ts: "2026-05-18T15:40:00.000Z",
     label:
-      "xray-jas-exposures — Rollout started to us-west-2-prod (1/4 clusters)",
+      "JFrog Xray / jas-exposures — Rollout started to us-west-2-prod (1/4 clusters)",
     tone: "green",
+    applicationId: "app-xray",
   },
   {
     ts: "2026-05-18T11:02:00.000Z",
-    label: "detect-agent opened PR for CVE-2025-62718 safe bump across xray stack",
+    label:
+      "detect-agent opened PR for CVE-2025-62718 safe bump across JFrog Xray stack",
     tone: "green",
+    applicationId: "app-xray",
   },
 ];
 
-/** Post-release critical rows for the dream widget. */
-export function buildPostReleaseCriticalRows(releases: SupportedRelease[]): {
-  id: string;
-  imageName: string;
-  version: string;
-  envTag: string;
+/** Post-release critical findings aggregated by application. */
+export function buildPostReleaseCriticalRows(
+  releases: SupportedRelease[],
+  apps: Application[] = APPLICATIONS,
+): {
+  applicationId: string;
+  applicationName: string;
+  label: string;
   detectedDate: string;
-  count: number;
+  vulnCount: number;
+  secretCount: number;
+  exposureCount: number;
+  sastCount: number;
+  contextualCount: number;
 }[] {
-  return releases
-    .map((r) => {
-      const post = r.cves.filter(
-        (c) => c.detectedPostRelease && c.cve.severity === "critical",
-      );
-      if (post.length === 0) return null;
-      const envTag =
-        r.tag === "latest" || r.tag === "stable"
-          ? "prod"
-          : r.tag === "beta"
-            ? "beta"
-            : "alpha";
-      const detectedDate = post
-        .map((p) => p.detectedAt)
-        .sort()
-        .slice(-1)[0];
+  return apps
+    .map((app) => {
+      const appReleases = releases.filter((r) => r.applicationId === app.id);
+      let vulnCount = 0;
+      let secretCount = 0;
+      let exposureCount = 0;
+      let sastCount = 0;
+      let contextualCount = 0;
+      let detectedDate = "";
+
+      for (const r of appReleases) {
+        const postCrit = r.cves.filter(
+          (c) => c.detectedPostRelease && c.cve.severity === "critical",
+        );
+        vulnCount += postCrit.length;
+        if (postCrit.length > 0) {
+          const d = postCrit.map((p) => p.detectedAt).sort().slice(-1)[0]!;
+          if (!detectedDate || d > detectedDate) detectedDate = d;
+        }
+        secretCount += r.secrets.filter((s) => s.severity === "critical").length;
+        exposureCount += r.exposures.filter((e) => e.severity === "critical")
+          .length;
+        sastCount += r.sastFindings.filter((s) => s.severity === "critical")
+          .length;
+        contextualCount += r.contextualAnalysis.filter(
+          (c) => c.applicability === "applicable",
+        ).length;
+      }
+
+      const total =
+        vulnCount + secretCount + exposureCount + sastCount + contextualCount;
+      if (total === 0) return null;
+
       return {
-        id: r.id,
-        imageName: r.imageName,
-        version: r.version,
-        envTag,
-        detectedDate,
-        count: post.length,
+        applicationId: app.id,
+        applicationName: app.name,
+        label: app.label,
+        detectedDate: detectedDate || "2026-05-18",
+        vulnCount,
+        secretCount,
+        exposureCount,
+        sastCount,
+        contextualCount,
       };
     })
     .filter(Boolean) as {
-    id: string;
-    imageName: string;
-    version: string;
-    envTag: string;
+    applicationId: string;
+    applicationName: string;
+    label: string;
     detectedDate: string;
-    count: number;
+    vulnCount: number;
+    secretCount: number;
+    exposureCount: number;
+    sastCount: number;
+    contextualCount: number;
   }[];
-}
-
-export function countOpenBySeverity(
-  cves: CVEInstance[],
-): Record<Severity, number> {
-  const out: Record<Severity, number> = {
-    critical: 0,
-    high: 0,
-    medium: 0,
-    low: 0,
-  };
-  for (const c of cves) {
-    if (c.state === "rolled_out") continue;
-    out[c.cve.severity] += 1;
-  }
-  return out;
-}
-
-export function worstSlaForRelease(r: SupportedRelease): {
-  status: SLAStatus;
-  daysRemaining: number | null;
-} {
-  let worst: SLAStatus = "no_data";
-  let days: number | null = null;
-  for (const c of r.cves) {
-    if (c.state === "rolled_out") continue;
-    if (c.slaStatus === "breached") {
-      worst = "breached";
-      days = c.daysToSLA;
-    } else if (worst !== "breached") {
-      if (c.slaStatus === "within") {
-        worst = "within";
-        days =
-          days === null ? c.daysToSLA : Math.min(days, c.daysToSLA);
-      } else if (worst === "no_data") {
-        worst = "no_data";
-        days = c.daysToSLA;
-      }
-    }
-  }
-  if (r.cves.length === 0) return { status: "no_data", daysRemaining: null };
-  return { status: worst, daysRemaining: days };
-}
-
-export function urgencyRank(r: SupportedRelease): number {
-  const w = worstSlaForRelease(r);
-  if (w.status === "breached") return 0;
-  if (w.status === "within" && (w.daysRemaining ?? 99) <= 2) return 1;
-  if (w.status === "within") return 2;
-  return 3;
-}
-
-export function sortReleasesForList(releases: SupportedRelease[]) {
-  return [...releases].sort((a, b) => {
-    const ra = urgencyRank(a);
-    const rb = urgencyRank(b);
-    if (ra !== rb) return ra - rb;
-    return a.imageName.localeCompare(b.imageName);
-  });
 }

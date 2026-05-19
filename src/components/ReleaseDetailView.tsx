@@ -4,18 +4,24 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   BadgeCheck,
+  Copy,
   ExternalLink,
   GitPullRequestArrow,
   AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
-import type { CVEInstance, SupportedRelease } from "@/lib/types";
+import type { Application, CVEInstance, SupportedRelease } from "@/lib/types";
 import { cn } from "@/lib/cn";
+import { dimensionCount } from "@/lib/findings";
 
 const TAB_LABELS = [
   "Version Timeline",
-  "Affected CVEs",
+  "Vulnerabilities",
+  "Secrets",
+  "Exposures",
+  "SAST",
+  "Contextual Analysis",
   "Content",
   "Evidence",
   "Risk",
@@ -25,7 +31,25 @@ type TabId = (typeof TAB_LABELS)[number];
 
 interface ReleaseDetailProps {
   release: SupportedRelease;
+  application: Application;
   siblingsSameImage: SupportedRelease[];
+}
+
+function tabCount(release: SupportedRelease, tab: TabId): number {
+  switch (tab) {
+    case "Vulnerabilities":
+      return dimensionCount(release, "vulnerabilities");
+    case "Secrets":
+      return release.secrets.length;
+    case "Exposures":
+      return release.exposures.length;
+    case "SAST":
+      return release.sastFindings.length;
+    case "Contextual Analysis":
+      return release.contextualAnalysis.length;
+    default:
+      return 0;
+  }
 }
 
 function formatBytes(bytes: number) {
@@ -63,9 +87,10 @@ function lifecycleStepSmall(state: CVEInstance["state"]) {
 
 export function ReleaseDetailView({
   release: initial,
+  application,
   siblingsSameImage,
 }: ReleaseDetailProps) {
-  const [tab, setTab] = useState<TabId>("Version Timeline");
+  const [tab, setTab] = useState<TabId>("Vulnerabilities");
   const [cveOpenId, setCveOpenId] = useState<string | null>(
     initial.cves[0]?.cve.id ?? null,
   );
@@ -92,7 +117,10 @@ export function ReleaseDetailView({
         crumbs={[
           { label: "All Projects", href: "/" },
           { label: "Supported Releases", href: "/releases/" },
-          { label: initial.imageName, href: "/releases/" },
+          {
+            label: application.name,
+            href: `/applications/${application.id}/`,
+          },
           { label: initial.version },
         ]}
       />
@@ -107,11 +135,17 @@ export function ReleaseDetailView({
               </div>
               <div className="min-w-0 flex-1">
                 <label className="text-[11px] font-semibold uppercase text-[color:var(--text-secondary)]">
-                  Application
+                  Release
                 </label>
                 <h1 className="truncate text-[20px] font-semibold text-[color:var(--text-primary)]">
                   {initial.imageName}
                 </h1>
+                <Link
+                  href={`/applications/${application.id}/`}
+                  className="mt-1 block text-[12px] font-semibold text-[color:var(--platform-teal-accent)] hover:underline"
+                >
+                  {application.name}
+                </Link>
               </div>
             </div>
             <div className="relative">
@@ -156,6 +190,35 @@ export function ReleaseDetailView({
               All clear · within SLA posture for Trusted+Supported.
             </div>
           )}
+
+          <FactCard title="Source">
+            <FactRow label="Commit">
+              <span className="inline-flex items-center gap-1 font-mono text-[12px]">
+                {initial.commit.shortSha}
+                <a
+                  href={`${initial.commit.repoUrl}/commit/${initial.commit.sha}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[color:var(--platform-teal-accent)]"
+                  aria-label="Open in git"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+                <button type="button" aria-label="Copy SHA" className="text-[color:var(--icon-tertiary)]">
+                  <Copy className="h-3.5 w-3.5" />
+                </button>
+              </span>
+            </FactRow>
+            <p className="line-clamp-2 text-[12px] text-[color:var(--text-secondary)]">
+              {initial.commit.message}
+            </p>
+            <FactRow label="Author · branch">
+              {initial.commit.author} on {initial.commit.branch}
+            </FactRow>
+            <FactRow label="Committed">
+              {new Date(initial.commit.timestamp).toLocaleString()}
+            </FactRow>
+          </FactCard>
 
           <FactCard title="About this version">
             <FactRow label="Creation Date">
@@ -235,10 +298,10 @@ export function ReleaseDetailView({
             <BadgeCheck className="h-4 w-4" /> Trusted lineage with AppTrust certify
           </div>
           <Link
-            href="/releases/"
+            href={`/applications/${application.id}/`}
             className="inline-flex text-[13px] font-semibold text-[color:var(--platform-teal-accent)] underline"
           >
-            ← Back to all releases
+            ← Back to {application.name}
           </Link>
         </aside>
 
@@ -256,14 +319,34 @@ export function ReleaseDetailView({
                 }`}
               >
                 {tLabel}
+                {tabCount(initial, tLabel) > 0 &&
+                (
+                  [
+                    "Vulnerabilities",
+                    "Secrets",
+                    "Exposures",
+                    "SAST",
+                    "Contextual Analysis",
+                  ] as TabId[]
+                ).includes(tLabel) ? (
+                  <span className="ml-1 rounded-full bg-[color:var(--surface-tertiary)] px-1.5 text-[10px]">
+                    {tabCount(initial, tLabel)}
+                  </span>
+                ) : null}
               </button>
             ))}
           </div>
 
           <div className="rounded-xl border border-[color:var(--border-primary)] bg-white p-6 shadow-sm">
             {tab === "Version Timeline" && <TimelinePane release={initial} />}
-            {tab === "Affected CVEs" && (
+            {tab === "Vulnerabilities" && (
               <CvesPane release={initial} expandedId={cveOpenId} onPick={setCveOpenId} />
+            )}
+            {tab === "Secrets" && <SecretsPane release={initial} />}
+            {tab === "Exposures" && <ExposuresPane release={initial} />}
+            {tab === "SAST" && <SASTPane release={initial} />}
+            {tab === "Contextual Analysis" && (
+              <ContextualPane release={initial} />
             )}
             {tab === "Content" && (
               <div className="space-y-3 text-[13px] leading-relaxed text-[color:var(--text-secondary)]">
@@ -597,5 +680,155 @@ function RiskPane({ release }: { release: SupportedRelease }) {
         <p className="mt-2 text-[22px] font-semibold">{rolloutLag}</p>
       </div>
     </div>
+  );
+}
+
+function FindingsTable({
+  headers,
+  rows,
+}: {
+  headers: string[];
+  rows: React.ReactNode[][];
+}) {
+  if (rows.length === 0) {
+    return (
+      <p className="text-[13px] text-[color:var(--text-secondary)]">
+        No findings in this dimension on this release.
+      </p>
+    );
+  }
+  return (
+    <div className="overflow-auto rounded border border-[color:var(--border-primary)]">
+      <table className="min-w-full border-collapse text-left text-[13px]">
+        <thead className="bg-[color:var(--surface-secondary)] text-[12px] font-semibold uppercase text-[color:var(--text-secondary)]">
+          <tr>
+            {headers.map((h) => (
+              <th key={h} className="border-b px-3 py-2">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((cells, i) => (
+            <tr key={i} className="border-t">
+              {cells.map((cell, j) => (
+                <td key={j} className="px-3 py-2 align-top">
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function SecretsPane({ release }: { release: SupportedRelease }) {
+  return (
+    <FindingsTable
+      headers={["Type", "Severity", "Location", "Description", "Jira"]}
+      rows={release.secrets.map((s) => [
+        <span key="t" className="font-mono text-[11px] uppercase">{s.type}</span>,
+        <SeverityPill key="s" severity={s.severity} />,
+        <span key="loc" className="font-mono text-[11px]">
+          {s.file}:{s.line}
+        </span>,
+        <span key="d">{s.description}</span>,
+        s.jiraKey ? (
+          <span key="j" className="font-mono text-[color:var(--platform-teal-accent)]">
+            {s.jiraKey}
+          </span>
+        ) : (
+          "—"
+        ),
+      ])}
+    />
+  );
+}
+
+function ExposuresPane({ release }: { release: SupportedRelease }) {
+  return (
+    <FindingsTable
+      headers={["Category", "Severity", "Resource", "Description", "Jira"]}
+      rows={release.exposures.map((e) => [
+        <span key="c" className="rounded bg-[color:var(--surface-tertiary)] px-2 py-0.5 text-[11px] font-semibold">
+          {e.category}
+        </span>,
+        <SeverityPill key="s" severity={e.severity} />,
+        <span key="r" className="font-mono text-[11px]">{e.resource}</span>,
+        <span key="d">{e.description}</span>,
+        <span key="j">{e.jiraKey ?? "—"}</span>,
+      ])}
+    />
+  );
+}
+
+function SASTPane({ release }: { release: SupportedRelease }) {
+  const [open, setOpen] = useState<string | null>(null);
+  return (
+    <div className="space-y-3">
+      {release.sastFindings.length === 0 ? (
+        <p className="text-[13px] text-[color:var(--text-secondary)]">No SAST findings.</p>
+      ) : (
+        release.sastFindings.map((s) => (
+          <div
+            key={s.id}
+            className="rounded-lg border border-[color:var(--border-primary)] p-4"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-mono text-[12px] font-semibold">{s.cweId}</span>
+              <SeverityPill severity={s.severity} />
+              <span className="text-[13px] font-semibold">{s.ruleName}</span>
+            </div>
+            <p className="mt-1 font-mono text-[11px] text-[color:var(--text-tertiary)]">
+              {s.file}:{s.line}
+            </p>
+            <p className="mt-2 text-[13px]">{s.description}</p>
+            {s.codeSnippet ? (
+              <button
+                type="button"
+                className="mt-2 text-[12px] font-semibold text-[color:var(--platform-teal-accent)]"
+                onClick={() => setOpen(open === s.id ? null : s.id)}
+              >
+                {open === s.id ? "Hide snippet" : "Show snippet"}
+              </button>
+            ) : null}
+            {open === s.id && s.codeSnippet ? (
+              <pre className="mt-2 overflow-auto rounded bg-[color:var(--surface-secondary)] p-3 font-mono text-[11px]">
+                {s.codeSnippet}
+              </pre>
+            ) : null}
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+function ContextualPane({ release }: { release: SupportedRelease }) {
+  const badge = (a: (typeof release.contextualAnalysis)[0]["applicability"]) => {
+    const map = {
+      applicable: "bg-[color:var(--red-100)] text-[color:var(--red-600)]",
+      not_applicable: "bg-[color:var(--green-100)] text-[color:var(--green-500)]",
+      not_covered: "bg-[color:var(--surface-tertiary)] text-[color:var(--text-tertiary)]",
+      rescanning: "bg-[color:var(--orange-100)] text-[color:var(--orange-600)]",
+    };
+    return (
+      <span className={cn("rounded px-2 py-0.5 text-[11px] font-semibold", map[a])}>
+        {a.replace("_", " ")}
+      </span>
+    );
+  };
+  return (
+    <FindingsTable
+      headers={["CVE", "Applicability", "Evidence"]}
+      rows={release.contextualAnalysis.map((c) => [
+        <span key="cve" className="font-mono font-semibold">{c.relatedCveId}</span>,
+        <span key="badge">{badge(c.applicability)}</span>,
+        <span key="ev">{c.evidence}</span>,
+      ])}
+    />
   );
 }

@@ -1,5 +1,5 @@
-import { ReleasesListView } from "@/components/ReleasesListView";
+import { ApplicationsListView } from "@/components/ApplicationsListView";
 
 export default function ReleasesPage() {
-  return <ReleasesListView />;
+  return <ApplicationsListView />;
 }

@@ -1,18 +1,21 @@
 "use client";
 
+import Link from "next/link";
 import { Pencil, BadgeCheck } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { FindingDimensionChips } from "@/components/FindingChips";
 import {
   LAST_REFRESH_ISO,
   TENANT_NAME,
   OVERVIEW_POLICY_BLURB,
+  APPLICATIONS,
   RELEASES,
   FIX_BOTTLENECKS,
   RECENT_ACTIVITY,
   buildPostReleaseCriticalRows,
   OUT_OF_SUPPORT_TRUSTED_COUNT,
-  worstSlaForRelease,
 } from "@/lib/fixtures";
+import { worstSlaForRelease } from "@/lib/findings";
 
 /**
  * DEMO: set to true to showcase Asaf’s “always empty, smiling dashboard” empty state.
@@ -100,7 +103,7 @@ export function DashboardView() {
               </dt>
               <dd className="inline-flex items-center gap-2 font-semibold">
                 <BadgeCheck className="h-4 w-4 text-[color:var(--green-500)]" />
-                {RELEASES.length} docker releases monitored
+                {APPLICATIONS.length} applications · {RELEASES.length} releases
               </dd>
             </div>
             <div>
@@ -116,43 +119,52 @@ export function DashboardView() {
           style={{ borderColor: "var(--platform-post-release-border)" }}
         >
           <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[color:var(--text-primary)]">
-            Post-Release · Newly Detected Critical CVEs on Supported Releases
+            Post-Release · Newly Detected Critical Findings on Supported Applications
           </h3>
           <p className="mt-1 text-[12px] text-[color:var(--text-secondary)]">
-            Surfaces Trusted versions that stayed Supported — runtime is FYI-only.
+            Aggregated by application across five finding dimensions.
           </p>
 
           {dreamRows.length === 0 ? (
             <div className="mt-6 flex flex-1 flex-col items-center justify-center gap-3 pb-10 text-center">
               <span className="text-5xl leading-none">🐸</span>
               <p className="max-w-[280px] text-[14px] font-semibold text-[color:var(--green-500)]">
-                You&apos;re good! No newly detected criticals on Supported Releases.
+                You&apos;re good! No newly detected critical findings on supported applications.
               </p>
             </div>
           ) : (
             <ul className="mt-4 space-y-2">
               {dreamRows.slice(0, 6).map((row) => (
                 <li
-                  key={row.id}
-                  className="flex items-center justify-between gap-3 rounded-md border border-[color:var(--border-primary)] bg-white px-3 py-2.5 shadow-sm"
+                  key={row.applicationId}
+                  className="rounded-md border border-[color:var(--border-primary)] bg-white px-3 py-2.5 shadow-sm"
                 >
-                  <div className="min-w-0">
-                    <span className="block truncate font-mono text-[13px] font-semibold">
-                      {row.imageName}{" "}
-                      <span className="font-sans font-normal">{row.version}</span>
-                    </span>
-                    <span className="block text-[12px] text-[color:var(--text-secondary)]">
-                      [{row.envTag}] ·{" "}
-                      {new Date(row.detectedDate).toLocaleDateString(undefined, {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </div>
-                  <span className="flex h-7 min-w-[28px] items-center justify-center rounded-full bg-[color:var(--red-500)] text-[12px] font-bold text-white">
-                    {row.count}
+                  <Link
+                    href={`/applications/${row.applicationId}/`}
+                    className="block truncate text-[13px] font-semibold text-[color:var(--platform-teal-accent)]"
+                  >
+                    {row.applicationName}
+                  </Link>
+                  <span className="block font-mono text-[11px] text-[color:var(--text-tertiary)]">
+                    {row.label}
                   </span>
+                  <span className="block text-[12px] text-[color:var(--text-secondary)]">
+                    {new Date(row.detectedDate).toLocaleDateString(undefined, {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                  <FindingDimensionChips
+                    size="xs"
+                    counts={{
+                      vulnerabilities: row.vulnCount,
+                      secrets: row.secretCount,
+                      exposures: row.exposureCount,
+                      sast: row.sastCount,
+                      contextual: row.contextualCount,
+                    }}
+                  />
                 </li>
               ))}
             </ul>
@@ -172,7 +184,8 @@ export function DashboardView() {
               <li key={b.cveId + b.service} className="rounded-md bg-white/80 px-3 py-2 shadow-sm">
                 <span className="font-semibold text-[color:var(--text-primary)]">{b.cveId}</span>{" "}
                 <span className="text-[color:var(--text-secondary)]">
-                  · {b.service} — {b.stage}{" "}
+                  · {b.applicationName ?? b.service}
+                  {b.releaseVersion ? ` / ${b.releaseVersion}` : ""} — {b.stage}{" "}
                   <span className="italic text-[color:var(--text-tertiary)]">
                     ({b.daysInStage}d in stage)
                   </span>
@@ -186,7 +199,12 @@ export function DashboardView() {
         </div>
       </section>
 
-      <section className="mt-8 grid gap-4 md:grid-cols-3">
+      <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Kpi
+          title="Supported Applications"
+          value={`${APPLICATIONS.length}`}
+          sub={`Tier-1 · ${APPLICATIONS.filter((a) => a.businessCriticality === "tier-1").length} · customer-facing · ${APPLICATIONS.filter((a) => a.customerFacing).length}`}
+        />
         <Kpi
           title="Supported Docker Releases"
           value={`${RELEASES.length}`}

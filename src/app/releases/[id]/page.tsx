@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { ReleaseDetailView } from "@/components/ReleaseDetailView";
-import { RELEASES } from "@/lib/fixtures";
+import { RELEASES, getApplication } from "@/lib/fixtures";
 
 export function generateStaticParams() {
   return RELEASES.map((r) => ({ id: r.id }));
@@ -15,11 +15,18 @@ export default async function ReleaseDetailPage({
   const release = RELEASES.find((r) => r.id === id);
   if (!release) notFound();
 
+  const application = getApplication(release.applicationId);
+  if (!application) notFound();
+
   const siblingsSameImage = RELEASES.filter(
     (r) => r.imageName === release.imageName,
   );
 
   return (
-    <ReleaseDetailView release={release} siblingsSameImage={siblingsSameImage} />
+    <ReleaseDetailView
+      release={release}
+      application={application}
+      siblingsSameImage={siblingsSameImage}
+    />
   );
 }

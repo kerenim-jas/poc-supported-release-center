@@ -14,7 +14,7 @@ const openSans = Open_Sans({
 export const metadata: Metadata = {
   title: "Trusted + Supported Release Center — JFrog",
   description:
-    "Internal POC v0.4 — AppTrust-styled Trusted ∩ Supported Docker releases with SLA + fix lifecycle. Runtime surfaces “Is Running” only.",
+    "Internal POC v0.5 — Application-centric Trusted ∩ Supported releases with commit traceability and five finding dimensions.",
 };
 
 export default function RootLayout({

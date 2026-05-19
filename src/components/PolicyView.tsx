@@ -3,7 +3,12 @@
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import type { Severity } from "@/lib/types";
-import { DEFAULT_SLA_POLICY } from "@/lib/fixtures";
+import {
+  APPLICATIONS,
+  DEFAULT_SLA_POLICY,
+  SLA_POLICY_SELF_MANAGED,
+  applicationsUsingPolicy,
+} from "@/lib/fixtures";
 
 const SEVERITY_OPTIONS: Severity[] = ["critical", "high", "medium", "low"];
 
@@ -201,6 +206,32 @@ export function PolicyView() {
               </Field>
             ))}
           </div>
+        </Card>
+
+        <Card title="Applications using this policy">
+          <p className="text-[13px] text-[color:var(--text-secondary)]">
+            Demo lists applications referencing{" "}
+            <strong>{SLA_POLICY_SELF_MANAGED.name}</strong> (active editor default).
+          </p>
+          <ul className="mt-4 space-y-2">
+            {applicationsUsingPolicy(SLA_POLICY_SELF_MANAGED.id).map((app) => (
+              <li
+                key={app.id}
+                className="flex items-center justify-between rounded-md border border-[color:var(--border-primary)] bg-[color:var(--surface-secondary)] px-3 py-2 text-[13px]"
+              >
+                <span className="font-semibold">{app.name}</span>
+                <span className="font-mono text-[11px] text-[color:var(--text-tertiary)]">
+                  {app.label}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-[12px] text-[color:var(--text-tertiary)]">
+            SaaS SLA policy also used by{" "}
+            {APPLICATIONS.filter((a) => a.slaPolicy.id !== SLA_POLICY_SELF_MANAGED.id)
+              .map((a) => a.name)
+              .join(", ") || "—"}
+          </p>
         </Card>
 
         <Card title="Fix lifecycle gating (Barak-style automation)">

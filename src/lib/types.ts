@@ -1,5 +1,5 @@
 /**
- * v0.4 domain model — Trusted ∩ Supported releases, AppTrust-style UI.
+ * v0.5 domain model — Application-centric Trusted ∩ Supported releases.
  * Runtime is a light "Is It Running" touchpoint only.
  */
 
@@ -10,10 +10,93 @@ export type SLAStatus = "within" | "breached" | "no_data";
 
 export type RuntimeState = "running" | "integrity_violation" | "not_running";
 
+export type FindingDimension =
+  | "vulnerabilities"
+  | "secrets"
+  | "exposures"
+  | "sast"
+  | "contextual";
+
 export interface RuntimeStatus {
   state: RuntimeState;
   clusters: { name: string; rolloutPercent: number }[];
   totalRolloutPercent: number;
+}
+
+export interface Application {
+  id: string;
+  name: string;
+  label: string;
+  description: string;
+  devOwner: { name: string; email: string; team: string };
+  productOwner?: { name: string; email: string };
+  slaPolicy: {
+    id: string;
+    name: string;
+    sourceUrl: string;
+  };
+  businessCriticality: "tier-1" | "tier-2" | "tier-3";
+  customerFacing: boolean;
+  deploymentModel: "saas" | "self_managed" | "both";
+  releaseIds: string[];
+}
+
+export interface CommitInfo {
+  sha: string;
+  shortSha: string;
+  message: string;
+  author: string;
+  authorEmail: string;
+  repoUrl: string;
+  branch: string;
+  timestamp: string;
+}
+
+export interface SecretFinding {
+  id: string;
+  type: "api-key" | "aws-key" | "github-token" | "password" | "private-key" | "jwt";
+  severity: Severity;
+  file: string;
+  line: number;
+  description: string;
+  detectedAt: string;
+  jiraKey?: string;
+}
+
+export interface ExposureFinding {
+  id: string;
+  category:
+    | "iac-misconfig"
+    | "exposed-port"
+    | "weak-tls"
+    | "permissive-cors"
+    | "unauthenticated-endpoint";
+  severity: Severity;
+  resource: string;
+  description: string;
+  detectedAt: string;
+  jiraKey?: string;
+}
+
+export interface SASTFinding {
+  id: string;
+  cweId: string;
+  ruleName: string;
+  severity: Severity;
+  file: string;
+  line: number;
+  description: string;
+  codeSnippet?: string;
+  detectedAt: string;
+  jiraKey?: string;
+}
+
+export interface ContextualAnalysisFinding {
+  id: string;
+  relatedCveId: string;
+  applicability: "applicable" | "not_applicable" | "not_covered" | "rescanning";
+  evidence: string;
+  detectedAt: string;
 }
 
 export interface CVE {
@@ -65,6 +148,7 @@ export interface Evidence {
 
 export interface SupportedRelease {
   id: string;
+  applicationId: string;
   imageName: string;
   imagePath: string;
   version: string;
@@ -80,14 +164,18 @@ export interface SupportedRelease {
   sizeBytes: number;
   customerImpact: number;
   runtime: RuntimeStatus;
+  commit: CommitInfo;
   cves: CVEInstance[];
+  secrets: SecretFinding[];
+  exposures: ExposureFinding[];
+  sastFindings: SASTFinding[];
+  contextualAnalysis: ContextualAnalysisFinding[];
   timeline: PromotionEvent[];
 }
 
 export interface SLAPolicyConfig {
   minorsSupported: number;
   supportWindowMonths: number;
-  /** Which severities apply to latest vs n−1/n−2 style tiers. */
   coverage: { latest: Severity[]; supportedBack: Severity[] };
   durations: Record<Severity, number>;
   automation: {
@@ -101,11 +189,14 @@ export interface DashboardActivity {
   ts: string;
   label: string;
   tone: "green" | "amber" | "red";
+  applicationId?: string;
 }
 
 export interface FixBottleneck {
   cveId: string;
   service: string;
+  applicationName?: string;
+  releaseVersion?: string;
   stage: string;
   daysInStage: number;
   detail: string;
