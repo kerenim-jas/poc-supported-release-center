@@ -3,11 +3,11 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  MoreHorizontal,
-  CheckCircle2,
-  CircleSlash,
-  ShieldAlert,
-} from "lucide-react";
+  CheckCircle2Icon,
+  CircleSlashIcon,
+  MoreHorizontalIcon,
+  ShieldAlertIcon,
+} from "@/components/icons/JFrogIcons";
 import { PageHeader } from "@/components/PageHeader";
 import { CompactPageTitle } from "@/components/CompactPageTitle";
 import { FilterToolbar } from "@/components/FilterToolbar";
@@ -238,7 +238,7 @@ export function ReleasesListView() {
                       </span>
                       {r.isTrusted && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--green-100)] px-2 py-0.5 text-[11px] font-semibold text-[color:var(--green-500)]">
-                          <CheckCircle2 className="h-3 w-3" />
+                          <CheckCircle2Icon size={12} />
                           Trusted
                         </span>
                       )}
@@ -288,7 +288,7 @@ export function ReleasesListView() {
                       className="rounded-[var(--radius-s)] p-1 hover:bg-[color:var(--surface-secondary)]"
                       aria-label="Row actions"
                     >
-                      <MoreHorizontal className="h-5 w-5 text-[color:var(--icon-tertiary)]" />
+                      <MoreHorizontalIcon size={20} className="text-[color:var(--icon-tertiary)]" />
                     </button>
                   </td>
                 </tr>
@@ -353,7 +353,7 @@ function RunningBadge({ r }: { r: SupportedRelease }) {
     return (
       <span title={integrityTip} className="inline-flex cursor-default items-center gap-1.5 text-[11px] font-semibold text-[color:var(--text-secondary)]">
         <span className="h-2 w-2 rounded-full bg-[color:var(--color-error)]" />
-        <ShieldAlert className="h-3.5 w-3.5 shrink-0 text-[color:var(--color-error)]" />
+        <ShieldAlertIcon size={14} className="shrink-0 text-[color:var(--color-error)]" />
         Integrity Violation
       </span>
     );
@@ -362,7 +362,7 @@ function RunningBadge({ r }: { r: SupportedRelease }) {
   return (
     <span title={clusterTip} className="inline-flex cursor-default items-center gap-1.5 text-[11px] font-semibold text-[color:var(--text-tertiary)]">
       <span className="h-2 w-2 rounded-full bg-[color:var(--text-tertiary)]" />
-      <CircleSlash className="h-3.5 w-3.5" />
+      <CircleSlashIcon size={14} />
       Idle
     </span>
   );

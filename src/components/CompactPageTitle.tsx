@@ -1,6 +1,6 @@
 "use client";
 
-import { Info } from "lucide-react";
+import { InfoIcon } from "@/components/icons/JFrogIcons";
 
 interface CompactPageTitleProps {
   title: string;
@@ -24,7 +24,7 @@ export function CompactPageTitle({
               className="rounded-[var(--radius-s)] p-0.5 text-[color:var(--icon-tertiary)] hover:bg-[color:var(--surface-secondary)] hover:text-[color:var(--icon-secondary)]"
               aria-label="About this view"
             >
-              <Info className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <InfoIcon size={14} />
             </button>
             <span
               role="tooltip"

@@ -95,7 +95,7 @@ export function PasswordGate({ children }: { children: React.ReactNode }) {
         </div>
 
         <h1 className="text-center text-[18px] font-semibold text-[color:var(--text-primary)]">
-          Supported Release Center — v0.2
+          Supported Release Center — v0.8
         </h1>
         <p className="mt-1 text-center text-[13px] text-[color:var(--text-secondary)]">
           Internal alignment preview. Built from Barak Haryati&rsquo;s SSDLC dashboard

@@ -1,5 +1,5 @@
 /**
- * Fixture data — v0.7 Application-centric Trusted ∩ Supported Release Center.
+ * Fixture data — v0.8 Application-centric Trusted ∩ Supported Release Center.
  * CVE catalog condensed from legacy v0.3 fixtures.
  *
  * DEMO: Toggle empty dream widget → see `SHOW_EMPTY_DREAM_WIDGET` in DashboardView.tsx

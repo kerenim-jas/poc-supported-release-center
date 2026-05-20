@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Pencil, BadgeCheck } from "lucide-react";
+import { BadgeCheckIcon, PencilIcon } from "@/components/icons/JFrogIcons";
 import { PageHeader } from "@/components/PageHeader";
 import { FindingDimensionChips } from "@/components/FindingChips";
 import {
@@ -83,7 +83,7 @@ export function DashboardView() {
               aria-label="Edit overview"
               title="Edit"
             >
-              <Pencil className="h-4 w-4" />
+              <PencilIcon size={16} />
             </button>
           </div>
           <dl className="mt-4 space-y-3 text-[13px]">
@@ -102,7 +102,7 @@ export function DashboardView() {
                 Trusted + Supported intersection
               </dt>
               <dd className="inline-flex items-center gap-2 font-semibold">
-                <BadgeCheck className="h-4 w-4 text-[color:var(--green-500)]" />
+                <BadgeCheckIcon size={16} className="text-[color:var(--green-500)]" />
                 {APPLICATIONS.length} applications · {RELEASES.length} releases
               </dd>
             </div>

@@ -1,24 +1,24 @@
 "use client";
 
 import {
-  Bug,
-  Key,
-  AlertTriangle,
-  Code,
-  Search,
-} from "lucide-react";
+  ContextualIcon,
+  ExposureIcon,
+  SastIcon,
+  SecretsIcon,
+  VulnerabilityIcon,
+} from "@/components/icons/JFrogIcons";
 import type { FindingDimension } from "@/lib/types";
 import { cn } from "@/lib/cn";
 
 const DIM_META: Record<
   FindingDimension,
-  { icon: typeof Bug; label: string }
+  { icon: typeof VulnerabilityIcon; label: string }
 > = {
-  vulnerabilities: { icon: Bug, label: "Vulnerabilities" },
-  secrets: { icon: Key, label: "Secrets" },
-  exposures: { icon: AlertTriangle, label: "Exposures" },
-  sast: { icon: Code, label: "SAST" },
-  contextual: { icon: Search, label: "Contextual" },
+  vulnerabilities: { icon: VulnerabilityIcon, label: "Vulnerabilities" },
+  secrets: { icon: SecretsIcon, label: "Secrets" },
+  exposures: { icon: ExposureIcon, label: "Exposures" },
+  sast: { icon: SastIcon, label: "SAST" },
+  contextual: { icon: ContextualIcon, label: "Contextual" },
 };
 
 export function FindingDimensionChips({
@@ -47,7 +47,7 @@ export function FindingDimensionChips({
                 : "bg-[color:var(--surface-tertiary)] text-[color:var(--text-tertiary)]",
             )}
           >
-            <Icon className={size === "xs" ? "h-3 w-3" : "h-3.5 w-3.5"} />
+            <Icon size={size === "xs" ? 12 : 14} />
             {n}
           </span>
         );

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Building2, MoreHorizontal } from "lucide-react";
+import { BuildingIcon, MoreHorizontalIcon } from "@/components/icons/JFrogIcons";
 import { PageHeader } from "@/components/PageHeader";
 import { CompactPageTitle } from "@/components/CompactPageTitle";
 import { FilterToolbar } from "@/components/FilterToolbar";
@@ -274,7 +274,7 @@ export function ApplicationsListView() {
                   </td>
                   <td>
                     <span className="inline-flex items-center gap-1 font-semibold">
-                      <Building2 className="h-3.5 w-3.5 text-[color:var(--icon-secondary)]" />
+                      <BuildingIcon size={14} className="text-[color:var(--icon-secondary)]" />
                       {appTenantSum(rs)}
                     </span>
                   </td>
@@ -284,7 +284,7 @@ export function ApplicationsListView() {
                       className="rounded-[var(--radius-s)] p-1 hover:bg-[color:var(--surface-secondary)]"
                       aria-label="Row actions"
                     >
-                      <MoreHorizontal className="h-5 w-5 text-[color:var(--icon-tertiary)]" />
+                      <MoreHorizontalIcon size={20} className="text-[color:var(--icon-tertiary)]" />
                     </button>
                   </td>
                 </tr>

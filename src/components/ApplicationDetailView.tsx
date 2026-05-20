@@ -3,13 +3,13 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  CheckCircle2,
-  Copy,
-  ExternalLink,
-  Mail,
-  ShieldAlert,
-  CircleSlash,
-} from "lucide-react";
+  CheckCircle2Icon,
+  CircleSlashIcon,
+  CopyIcon,
+  ExternalLinkIcon,
+  MailIcon,
+  ShieldAlertIcon,
+} from "@/components/icons/JFrogIcons";
 import { PageHeader } from "@/components/PageHeader";
 import { CompactPageTitle } from "@/components/CompactPageTitle";
 import { FilterToolbar } from "@/components/FilterToolbar";
@@ -193,7 +193,7 @@ export function ApplicationDetailView({
               type="button"
               className="mt-3 inline-flex items-center gap-2 rounded-md bg-[color:var(--navy-600)] px-3 py-2 text-[12px] font-semibold text-white"
             >
-              <Mail className="h-3.5 w-3.5" />
+              <MailIcon size={14} />
               Notify owner
             </button>
           </div>
@@ -324,7 +324,7 @@ function ReleasesTable({ releases }: { releases: SupportedRelease[] }) {
                 <div className="mt-1 flex gap-1">
                   {r.isTrusted && (
                     <span className="inline-flex items-center gap-0.5 rounded-full bg-[color:var(--green-100)] px-1.5 text-[10px] font-semibold text-[color:var(--green-500)]">
-                      <CheckCircle2 className="h-3 w-3" /> Trusted
+                      <CheckCircle2Icon size={12} /> Trusted
                     </span>
                   )}
                   <span className="rounded-full bg-[color:var(--navy-100)] px-1.5 text-[10px] font-semibold uppercase">
@@ -372,7 +372,7 @@ function CommitCell({ commit }: { commit: SupportedRelease["commit"] }) {
     <div className="flex items-center gap-1 font-mono text-[11px]">
       <span title={commit.message}>{commit.shortSha}</span>
       <button type="button" aria-label="Copy SHA" className="p-0.5">
-        <Copy className="h-3 w-3" />
+        <CopyIcon size={12} />
       </button>
       <a
         href={`${commit.repoUrl}/commit/${commit.sha}`}
@@ -380,7 +380,7 @@ function CommitCell({ commit }: { commit: SupportedRelease["commit"] }) {
         rel="noreferrer"
         className="p-0.5 text-[color:var(--platform-teal-accent)]"
       >
-        <ExternalLink className="h-3 w-3" />
+        <ExternalLinkIcon size={12} />
       </a>
     </div>
   );
@@ -533,14 +533,14 @@ function RuntimeBadge({ release }: { release: SupportedRelease }) {
     return (
       <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[color:var(--text-secondary)]">
         <span className="h-2 w-2 rounded-full bg-[color:var(--color-error)]" />
-        <ShieldAlert className="h-3 w-3 text-[color:var(--color-error)]" /> Violation
+        <ShieldAlertIcon size={12} className="text-[color:var(--color-error)]" /> Violation
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1.5 text-[11px] text-[color:var(--text-tertiary)]">
       <span className="h-2 w-2 rounded-full bg-[color:var(--text-tertiary)]" />
-      <CircleSlash className="h-3 w-3" /> Idle
+      <CircleSlashIcon size={12} /> Idle
     </span>
   );
 }

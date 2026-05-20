@@ -2,11 +2,11 @@
 
 import { useCallback, useId, useRef, useState } from "react";
 import {
-  ChevronDown,
-  Filter,
-  Search,
-  X,
-} from "lucide-react";
+  ChevronDownIcon,
+  CloseIcon,
+  FilterIcon,
+  SearchIcon,
+} from "@/components/icons/JFrogIcons";
 import type { FindingDimension, RuntimeState, Severity } from "@/lib/types";
 import { ALL_FINDING_DIMENSIONS, FINDING_TYPE_LABELS } from "@/components/FindingChips";
 import {
@@ -53,7 +53,7 @@ const STAGE_OPTIONS: { value: StageFilter; label: string }[] = [
 ];
 
 const filterInputClass =
-  "h-7 rounded-[var(--radius-s)] border border-[color:var(--border-secondary)] bg-[color:var(--surface-primary)] text-[14px] font-normal text-[color:var(--text-primary)] outline-none focus:border-[color:var(--border-active)]";
+  "h-7 rounded-[var(--radius-s)] border border-[color:var(--border-secondary)] bg-[color:var(--surface-primary)] text-[14px] font-normal leading-[19px] text-[color:var(--text-primary)] outline-none focus:border-[color:var(--border-active)]";
 
 function pillClass(open: boolean, active: boolean) {
   return cn(
@@ -136,9 +136,9 @@ export function FilterToolbar({
     >
       {showAppSearch && onAppSearchChange ? (
         <div className="relative shrink-0">
-          <Search
-            className="pointer-events-none absolute left-[var(--space-s)] top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[color:var(--icon-secondary)]"
-            strokeWidth={1.5}
+          <SearchIcon
+            size={14}
+            className="pointer-events-none absolute left-[var(--space-s)] top-1/2 -translate-y-1/2 text-[color:var(--icon-secondary)]"
           />
           <input
             type="search"
@@ -237,9 +237,9 @@ export function FilterToolbar({
       </FilterDropdown>
 
       <div className="relative flex shrink-0 items-center">
-        <Search
-          className="pointer-events-none absolute left-[var(--space-s)] top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[color:var(--icon-secondary)]"
-          strokeWidth={1.5}
+        <SearchIcon
+          size={14}
+          className="pointer-events-none absolute left-[var(--space-s)] top-1/2 -translate-y-1/2 text-[color:var(--icon-secondary)]"
         />
         <input
           id={cveInputId}
@@ -247,10 +247,7 @@ export function FilterToolbar({
           value={cveId}
           onChange={(e) => onCveChange(e.target.value)}
           placeholder="CVE ID"
-          className={cn(
-            filterInputClass,
-            "w-[180px] pl-8 pr-7 font-mono",
-          )}
+          className={cn(filterInputClass, "w-[180px] pl-8 pr-7 font-mono")}
           aria-label="CVE ID filter"
         />
         {cveId ? (
@@ -260,7 +257,7 @@ export function FilterToolbar({
             className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-[var(--radius-xs)] p-0.5 text-[color:var(--icon-tertiary)] hover:bg-[color:var(--surface-secondary)]"
             aria-label="Clear CVE ID"
           >
-            <X className="h-3.5 w-3.5" strokeWidth={1.5} />
+            <CloseIcon size={14} />
           </button>
         ) : null}
       </div>
@@ -269,7 +266,7 @@ export function FilterToolbar({
         {activeCount > 0 ? (
           <>
             <span className="inline-flex items-center gap-1 text-[12px] font-normal text-[color:var(--text-secondary)]">
-              <Filter className="h-3.5 w-3.5 text-[color:var(--icon-secondary)]" strokeWidth={1.5} />
+              <FilterIcon size={14} className="text-[color:var(--icon-secondary)]" />
               Filters: {activeCount}
             </span>
             <button
@@ -277,7 +274,7 @@ export function FilterToolbar({
               onClick={onClearAll}
               className="inline-flex items-center gap-1 text-[12px] font-normal text-[color:var(--text-link)] hover:underline"
             >
-              <X className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <CloseIcon size={14} />
               Clear all
             </button>
           </>
@@ -306,12 +303,12 @@ function FilterDropdown({
       <button type="button" onClick={onToggle} className={pillClass(open, badge > 0)} aria-expanded={open}>
         {label}
         <CountBadge n={badge} />
-        <ChevronDown
+        <ChevronDownIcon
+          size={14}
           className={cn(
-            "h-3.5 w-3.5 text-[color:var(--icon-secondary)] transition-transform",
+            "text-[color:var(--icon-secondary)] transition-transform",
             open && "rotate-180",
           )}
-          strokeWidth={1.5}
         />
       </button>
       {open ? (

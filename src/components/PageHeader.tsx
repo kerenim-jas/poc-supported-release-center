@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDownIcon, ChevronRightIcon } from "@/components/icons/JFrogIcons";
 
 export type Crumb = { label: string; href?: string };
 
@@ -19,7 +19,7 @@ export function PageHeader({ crumbs, title, subtitle }: PageHeaderProps) {
           {crumbs.map((c, i) => (
             <span key={`${c.label}-${i}`} className="flex items-center gap-1">
               {i > 0 && (
-                <ChevronRight className="h-3 w-3 text-[color:var(--text-tertiary)]" strokeWidth={1.5} />
+                <ChevronRightIcon size={12} className="text-[color:var(--text-tertiary)]" />
               )}
               {c.href ? (
                 <Link
@@ -53,7 +53,7 @@ export function PageHeader({ crumbs, title, subtitle }: PageHeaderProps) {
           <summary className="list-none cursor-pointer select-none [&::-webkit-details-marker]:hidden">
             <span className="btn-primary gap-[var(--space-2xs)] px-[var(--space-s)]">
               Actions
-              <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <ChevronDownIcon size={14} />
             </span>
           </summary>
           <div className="absolute right-0 z-40 mt-1 min-w-[200px] rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] py-1 text-[14px] shadow-[var(--shadow-sunken)]">

@@ -3,12 +3,12 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  BadgeCheck,
-  Copy,
-  ExternalLink,
-  GitPullRequestArrow,
-  AlertTriangle,
-} from "lucide-react";
+  BadgeCheckIcon,
+  CopyIcon,
+  ExposureIcon,
+  ExternalLinkIcon,
+  GitBranchIcon,
+} from "@/components/icons/JFrogIcons";
 import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
 import type { Application, CVEInstance, SupportedRelease } from "@/lib/types";
@@ -170,7 +170,7 @@ export function ReleaseDetailView({
           {postCritical ? (
             <div className="rounded-md border border-[color:var(--orange-500)] bg-[color:var(--orange-100)] px-4 py-3 text-[13px] text-[color:var(--text-primary)]">
               <div className="flex items-start gap-2">
-                <AlertTriangle className="mt-1 h-4 w-4 text-[color:var(--orange-500)]" />
+                <ExposureIcon size={16} className="mt-1 text-[color:var(--orange-500)]" />
                 <span>
                   <strong>Newly detected Critical CVE post-release · </strong>
                   {new Date(
@@ -202,10 +202,10 @@ export function ReleaseDetailView({
                   className="text-[color:var(--platform-teal-accent)]"
                   aria-label="Open in git"
                 >
-                  <ExternalLink className="h-3.5 w-3.5" />
+                  <ExternalLinkIcon size={14} />
                 </a>
                 <button type="button" aria-label="Copy SHA" className="text-[color:var(--icon-tertiary)]">
-                  <Copy className="h-3.5 w-3.5" />
+                  <CopyIcon size={14} />
                 </button>
               </span>
             </FactRow>
@@ -295,7 +295,7 @@ export function ReleaseDetailView({
           </FactCard>
 
           <div className="flex items-center gap-2 text-[13px] text-[color:var(--green-500)] font-semibold">
-            <BadgeCheck className="h-4 w-4" /> Trusted lineage with AppTrust certify
+            <BadgeCheckIcon size={16} /> Trusted lineage with AppTrust certify
           </div>
           <Link
             href={`/applications/${application.id}/`}
@@ -546,14 +546,14 @@ function CvesPane({
                     type="button"
                     className="mt-6 inline-flex w-fit items-center gap-2 rounded-md bg-[color:var(--navy-600)] px-3 py-2 text-[13px] font-semibold text-white hover:opacity-90"
                   >
-                    <GitPullRequestArrow className="h-4 w-4" />
+                    <GitBranchIcon size={16} />
                     Open automated PR chain
                   </button>
                   <button
                     type="button"
                     className="mt-3 inline-flex w-fit items-center gap-2 rounded-md border border-[color:var(--border-secondary)] bg-[color:var(--surface-primary)] px-3 py-2 text-[13px] font-semibold text-[color:var(--platform-teal-accent)]"
                   >
-                    <ExternalLink className="h-4 w-4" />
+                    <ExternalLinkIcon size={16} />
                     Decorative Jira link
                   </button>
                 </div>
