@@ -14,7 +14,7 @@ const openSans = Open_Sans({
 export const metadata: Metadata = {
   title: "Trusted + Supported Release Center — JFrog",
   description:
-    "Internal POC v0.9 — Application-centric Trusted ∩ Supported releases with commit traceability and five finding dimensions.",
+    "Internal POC v0.10 — Application-centric Trusted ∩ Supported releases with commit traceability and five finding dimensions.",
 };
 
 export default function RootLayout({

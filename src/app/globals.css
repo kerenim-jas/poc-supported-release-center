@@ -218,6 +218,16 @@ body {
   line-height: 16px;
   font-weight: 400;
 }
+.text-body2-regular {
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+}
+.text-label1-semibold {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+}
 
 /* JFrog button primitives */
 .btn-primary {

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { BadgeCheckIcon, PencilIcon } from "@/components/icons/JFrogIcons";
 import { PageHeader } from "@/components/PageHeader";
 import { FindingDimensionChips } from "@/components/FindingChips";
+import { FixLifecycleBottlenecksWidget } from "@/components/FixLifecycleBottleneckStepper";
 import {
   LAST_REFRESH_ISO,
   TENANT_NAME,
@@ -172,31 +173,7 @@ export function DashboardView() {
         </div>
 
         {/* Bottlenecks */}
-        <div className="rounded-[var(--radius-s)] border-[2px] border-[color:var(--green-500)] bg-[color:var(--green-100)]/35 p-4 shadow-sm">
-          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[color:var(--text-primary)]">
-            Fix Lifecycle Bottlenecks
-          </h3>
-          <p className="mt-1 text-[12px] text-[color:var(--text-secondary)]">
-            Barak&apos;s lifecycle model · top stuck transitions
-          </p>
-          <ul className="mt-4 space-y-3 text-[13px]">
-            {FIX_BOTTLENECKS.map((b) => (
-              <li key={b.cveId + b.service} className="rounded-md bg-[color:var(--surface-primary)]/80 px-3 py-2 shadow-sm">
-                <span className="font-semibold text-[color:var(--text-primary)]">{b.cveId}</span>{" "}
-                <span className="text-[color:var(--text-secondary)]">
-                  · {b.applicationName ?? b.service}
-                  {b.releaseVersion ? ` / ${b.releaseVersion}` : ""} — {b.stage}{" "}
-                  <span className="italic text-[color:var(--text-tertiary)]">
-                    ({b.daysInStage}d in stage)
-                  </span>
-                </span>
-                <span className="mt-1 block text-[12px] text-[color:var(--text-secondary)]">
-                  {b.detail}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <FixLifecycleBottlenecksWidget bottlenecks={FIX_BOTTLENECKS} />
       </section>
 
       <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">

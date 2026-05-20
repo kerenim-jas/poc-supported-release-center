@@ -107,7 +107,7 @@ export function JFrogTopBar({ activeTab = "platform" }: JFrogTopBarProps) {
         </button>
 
         <span className="hidden whitespace-nowrap text-[11px] text-[color:var(--text-tertiary)] sm:inline">
-          Internal POC v0.9
+          Internal POC v0.10
         </span>
 
         <div

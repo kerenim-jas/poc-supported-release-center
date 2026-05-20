@@ -192,12 +192,17 @@ export interface DashboardActivity {
   applicationId?: string;
 }
 
+export type FixLifecycleStage =
+  | "code-fixed"
+  | "build-pending"
+  | "released"
+  | "rolling-out";
+
 export interface FixBottleneck {
-  cveId: string;
-  service: string;
-  applicationName?: string;
-  releaseVersion?: string;
-  stage: string;
-  daysInStage: number;
-  detail: string;
+  applicationName: string;
+  /** Short scope label, e.g. "Artifactory federation" */
+  serviceLabel?: string;
+  currentStage: FixLifecycleStage;
+  count: number;
+  avgDays: number;
 }

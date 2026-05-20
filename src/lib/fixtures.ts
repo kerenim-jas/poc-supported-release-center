@@ -919,34 +919,46 @@ export const RELEASES: SupportedRelease[] = BASE_RELEASES.map((r) =>
 
 export const FIX_BOTTLENECKS: FixBottleneck[] = [
   {
-    cveId: "CVE-2026-29145",
-    service: "artifactory-federation",
     applicationName: "JFrog Artifactory",
-    releaseVersion: "2.18.0",
-    stage: "Released",
-    daysInStage: 3,
-    detail:
-      "CVE-2026-29145 in JFrog Artifactory / artifactory-federation 2.18.0 — Released (2/4 clusters rolled out, 3d in stage)",
+    serviceLabel: "Artifactory federation",
+    currentStage: "released",
+    count: 2,
+    avgDays: 3,
   },
   {
-    cveId: "CVE-2026-29871",
-    service: "artifactory-router",
     applicationName: "JFrog Artifactory",
-    releaseVersion: "2.94.5",
-    stage: "Rolled-out",
-    daysInStage: 5,
-    detail:
-      "High exposure still customer-visible on Artifactory router v2.94.5 while fix propagates tenant-by-tenant",
+    serviceLabel: "Artifactory router",
+    currentStage: "rolling-out",
+    count: 1,
+    avgDays: 5,
   },
   {
-    cveId: "CVE-2026-33815",
-    service: "artifactory-server",
     applicationName: "JFrog Artifactory",
-    releaseVersion: "7.146.10",
-    stage: "Released",
-    daysInStage: 2,
-    detail:
-      "Fix build shipped for Artifactory server 7.146.10; final cluster waiting on maintenance window",
+    serviceLabel: "Artifactory server",
+    currentStage: "released",
+    count: 1,
+    avgDays: 2,
+  },
+  {
+    applicationName: "JFrog Xray",
+    serviceLabel: "jas-exposures",
+    currentStage: "build-pending",
+    count: 3,
+    avgDays: 12,
+  },
+  {
+    applicationName: "JFrog Xray",
+    serviceLabel: "xray-indexer",
+    currentStage: "build-pending",
+    count: 2,
+    avgDays: 8,
+  },
+  {
+    applicationName: "JFrog AppTrust",
+    serviceLabel: "apptrust-api",
+    currentStage: "code-fixed",
+    count: 4,
+    avgDays: 6,
   },
 ];
 
