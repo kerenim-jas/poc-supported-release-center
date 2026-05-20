@@ -41,6 +41,7 @@
   /* Brand navy */
   --navy-100: #eef3f8;
   --navy-200: #d2dfed;
+  --navy-400: #7e9bb8;
   --navy-500: #708cb2;
   --navy-600: #415980;
 
@@ -50,8 +51,32 @@
   --red-500: #e93838;
   --red-600: #b91c1c;
   --orange-500: #f59e0b;
+  --orange-600: #d97706;
   --orange-100: #fff7ec;
   --yellow-500: #ffcf31;
+
+  /* Severity (Live Assessment palette) */
+  --severity-critical: #b91c1c;
+  --severity-critical-bg: #fff1f2;
+  --severity-high: #d97706;
+  --severity-high-bg: #fff7ec;
+  --severity-medium: #415980;
+  --severity-medium-bg: #eef3f8;
+  --severity-low: #5e6d81;
+  --severity-low-bg: #f8fafb;
+
+  /* Semantic state */
+  --color-success: #3eb065;
+  --color-warning: #f59e0b;
+  --color-error: #e93838;
+  --color-info: #708cb2;
+
+  /* Surfaces & borders (Figma tokens) */
+  --surface-elevated: #ffffff;
+  --border-subtle: #eaeef5;
+  --border-strong: #b4bacc;
+  --text-link: #0b6e7f;
+  --text-disabled: #b4bacc;
 
   /* Icons */
   --icon-primary: #414857;

@@ -112,7 +112,7 @@ export function ReleaseDetailView({
   );
 
   return (
-    <div className="mx-auto flex min-h-full max-w-[1380px] flex-col px-6 pb-12 pt-6">
+    <div className="mx-auto flex min-h-full max-w-[1380px] flex-col px-6 pb-10 pt-4">
       <PageHeader
         crumbs={[
           { label: "All Projects", href: "/" },

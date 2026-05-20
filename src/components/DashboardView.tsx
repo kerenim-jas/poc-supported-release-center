@@ -56,7 +56,7 @@ export function DashboardView() {
   }).length;
 
   return (
-    <div className="mx-auto flex min-h-full max-w-[1280px] flex-col px-6 pb-10">
+    <div className="mx-auto flex min-h-full max-w-[1280px] flex-col px-6 pb-10 pt-4">
       <PageHeader
         crumbs={[
           { label: "All Projects", href: "/" },
@@ -65,7 +65,7 @@ export function DashboardView() {
         ]}
       />
 
-      <section className="grid gap-4 lg:grid-cols-3">
+      <section className="grid gap-3 lg:grid-cols-3">
         {/* Overview */}
         <div className="rounded-lg border border-[color:var(--border-primary)] bg-white p-4 shadow-sm">
           <div className="mb-2 flex items-start justify-between gap-2">

@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  Shield,
+  Bug,
   Key,
-  AlertCircle,
-  Code2,
+  AlertTriangle,
+  Code,
   Search,
 } from "lucide-react";
 import type { FindingDimension } from "@/lib/types";
@@ -12,12 +12,12 @@ import { cn } from "@/lib/cn";
 
 const DIM_META: Record<
   FindingDimension,
-  { icon: typeof Shield; label: string }
+  { icon: typeof Bug; label: string }
 > = {
-  vulnerabilities: { icon: Shield, label: "Vulnerabilities" },
+  vulnerabilities: { icon: Bug, label: "Vulnerabilities" },
   secrets: { icon: Key, label: "Secrets" },
-  exposures: { icon: AlertCircle, label: "Exposures" },
-  sast: { icon: Code2, label: "SAST" },
+  exposures: { icon: AlertTriangle, label: "Exposures" },
+  sast: { icon: Code, label: "SAST" },
   contextual: { icon: Search, label: "Contextual" },
 };
 

@@ -80,7 +80,7 @@ export function PolicyView() {
   );
 
   return (
-    <div className="mx-auto max-w-[960px] px-6 pb-16 pt-6">
+    <div className="mx-auto max-w-[960px] px-6 pb-16 pt-4">
       <PageHeader
         crumbs={[
           { label: "All Projects", href: "/" },

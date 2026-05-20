@@ -14,7 +14,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ crumbs, title, subtitle }: PageHeaderProps) {
   return (
-    <div className="mb-6 flex shrink-0 flex-wrap items-start justify-between gap-4 border-b border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] pb-4 pt-5">
+    <div className="mb-3 flex shrink-0 flex-wrap items-start justify-between gap-3 border-b border-[color:var(--border-subtle)] bg-[color:var(--surface-primary)] pb-3 pt-3">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-1 text-[13px] text-[color:var(--platform-teal-accent)]">
           {crumbs.map((c, i) => (

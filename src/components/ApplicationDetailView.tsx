@@ -11,7 +11,14 @@ import {
   CircleSlash,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { CompactPageTitle } from "@/components/CompactPageTitle";
+import { FilterToolbar } from "@/components/FilterToolbar";
 import { FindingDimensionChips } from "@/components/FindingChips";
+import type { Severity } from "@/lib/types";
+import {
+  initRuntimeOn,
+  initSeverityOn,
+} from "@/lib/filter-utils";
 import type { Application, SupportedRelease } from "@/lib/types";
 import {
   RECENT_ACTIVITY,
@@ -55,7 +62,7 @@ export function ApplicationDetailView({
         : "var(--navy-500)";
 
   return (
-    <div className="mx-auto flex min-h-full max-w-[1380px] flex-col px-6 pb-12 pt-6">
+    <div className="mx-auto flex min-h-full max-w-[1380px] flex-col px-6 pb-10 pt-4">
       <PageHeader
         crumbs={[
           { label: "All Projects", href: "/" },
@@ -64,7 +71,12 @@ export function ApplicationDetailView({
         ]}
       />
 
-      <div className="mt-6 flex gap-8">
+      <CompactPageTitle
+        title={application.name}
+        meta={`${releases.length} releases`}
+      />
+
+      <div className="mt-4 flex gap-8">
         <aside className="w-[320px] shrink-0 space-y-4">
           <div className="overflow-hidden rounded-lg border border-[color:var(--border-primary)] bg-white shadow-sm">
             <div
@@ -75,7 +87,7 @@ export function ApplicationDetailView({
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[color:var(--navy-100)] text-[14px] font-bold text-[color:var(--navy-600)]">
                 app
               </div>
-              <h1 className="mt-3 text-[20px] font-semibold">{application.name}</h1>
+              <h2 className="mt-3 text-[18px] font-semibold">{application.name}</h2>
               <span className="mt-2 inline-block rounded bg-[color:var(--surface-tertiary)] px-2 py-0.5 font-mono text-[11px]">
                 {application.label}
               </span>
@@ -206,9 +218,9 @@ export function ApplicationDetailView({
             ))}
           </div>
 
-          <div className="mt-4 rounded-xl border border-[color:var(--border-primary)] bg-white p-6 shadow-sm">
+          <div className="mt-3 rounded-xl border border-[color:var(--border-primary)] bg-white p-4 shadow-sm">
             {tab === "Releases" && (
-              <ReleasesTable releases={releases} />
+              <ReleasesTab releases={releases} />
             )}
             {tab === "Findings summary" && (
               <FindingsSummary releases={releases} />
@@ -221,6 +233,63 @@ export function ApplicationDetailView({
         </section>
       </div>
     </div>
+  );
+}
+
+function ReleasesTab({ releases }: { releases: SupportedRelease[] }) {
+  const [severityOn, setSeverityOn] = useState(initSeverityOn);
+  const [runtimeOn, setRuntimeOn] = useState(initRuntimeOn);
+  const [stage, setStage] = useState<"any" | "latest" | "supported">("any");
+  const [cveId, setCveId] = useState("");
+
+  const filtered = useMemo(() => {
+    const cveNeedle = cveId.trim().toLowerCase();
+    const allSev = (["critical", "high", "medium", "low"] as Severity[]).every(
+      (s) => severityOn[s],
+    );
+    const allRun = Object.values(runtimeOn).every(Boolean);
+
+    return releases.filter((r) => {
+      if (!allSev) {
+        const allowed = new Set(
+          (["critical", "high", "medium", "low"] as Severity[]).filter(
+            (s) => severityOn[s],
+          ),
+        );
+        if (!r.cves.some((c) => allowed.has(c.cve.severity))) return false;
+      }
+      if (cveNeedle && !r.cves.some((c) => c.cve.id.toLowerCase().includes(cveNeedle)))
+        return false;
+      if (!allRun && !runtimeOn[r.runtime.state]) return false;
+      if (stage === "latest" && r.supportTier !== "latest") return false;
+      if (stage === "supported" && r.supportTier !== "supported") return false;
+      return true;
+    });
+  }, [releases, severityOn, runtimeOn, stage, cveId]);
+
+  function clearAll() {
+    setSeverityOn(initSeverityOn());
+    setRuntimeOn(initRuntimeOn());
+    setStage("any");
+    setCveId("");
+  }
+
+  return (
+    <>
+      <FilterToolbar
+        showFindingType={false}
+        severityOn={severityOn}
+        runtimeOn={runtimeOn}
+        stage={stage}
+        cveId={cveId}
+        onSeverityChange={setSeverityOn}
+        onRuntimeChange={setRuntimeOn}
+        onStageChange={setStage}
+        onCveChange={setCveId}
+        onClearAll={clearAll}
+      />
+      <ReleasesTable releases={filtered} />
+    </>
   );
 }
 
@@ -454,20 +523,23 @@ function TierBadge({ tier }: { tier: Application["businessCriticality"] }) {
 function RuntimeBadge({ release }: { release: SupportedRelease }) {
   if (release.runtime.state === "running") {
     return (
-      <span className="text-[11px] font-semibold text-[color:var(--green-500)]">
+      <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[color:var(--text-secondary)]">
+        <span className="h-2 w-2 rounded-full bg-[color:var(--color-success)]" />
         Running
       </span>
     );
   }
   if (release.runtime.state === "integrity_violation") {
     return (
-      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[color:var(--orange-600)]">
-        <ShieldAlert className="h-3 w-3" /> Violation
+      <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[color:var(--text-secondary)]">
+        <span className="h-2 w-2 rounded-full bg-[color:var(--color-error)]" />
+        <ShieldAlert className="h-3 w-3 text-[color:var(--color-error)]" /> Violation
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 text-[11px] text-[color:var(--text-tertiary)]">
+    <span className="inline-flex items-center gap-1.5 text-[11px] text-[color:var(--text-tertiary)]">
+      <span className="h-2 w-2 rounded-full bg-[color:var(--text-tertiary)]" />
       <CircleSlash className="h-3 w-3" /> Idle
     </span>
   );

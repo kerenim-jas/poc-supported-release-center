@@ -9,21 +9,20 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
-import type { RuntimeState, Severity, SupportedRelease } from "@/lib/types";
+import { CompactPageTitle } from "@/components/CompactPageTitle";
+import { FilterToolbar } from "@/components/FilterToolbar";
+import type { Severity, SupportedRelease } from "@/lib/types";
 import {
   RELEASES,
   sortReleasesForList,
   countOpenBySeverity,
   worstSlaForRelease,
 } from "@/lib/fixtures";
+import {
+  initRuntimeOn,
+  initSeverityOn,
+} from "@/lib/filter-utils";
 import { cn } from "@/lib/cn";
-
-const ALL_SEVERITIES: Severity[] = ["critical", "high", "medium", "low"];
-const ALL_RUNTIME_STATES: RuntimeState[] = [
-  "running",
-  "integrity_violation",
-  "not_running",
-];
 
 function lifecycleRank(st: SupportedRelease["cves"][number]["state"]) {
   const idx = ["backlog", "action", "released", "rolled_out"] as const;
@@ -91,9 +90,9 @@ function SeverityChips({
   counts: Partial<Record<"critical" | "high" | "medium", number>>;
 }) {
   const defs = [
-    { k: "critical" as const, bg: "#fff1f2", fg: "#b91c1c" },
-    { k: "high" as const, bg: "#fff7ec", fg: "#b45309" },
-    { k: "medium" as const, bg: "#eef3f8", fg: "#415980" },
+    { k: "critical" as const, bg: "var(--severity-critical-bg)", fg: "var(--severity-critical)" },
+    { k: "high" as const, bg: "var(--severity-high-bg)", fg: "var(--severity-high)" },
+    { k: "medium" as const, bg: "var(--severity-medium-bg)", fg: "var(--severity-medium)" },
   ];
   return (
     <div className="flex flex-wrap gap-1">
@@ -113,32 +112,6 @@ function SeverityChips({
   );
 }
 
-function chipActive(active: boolean) {
-  return cn(
-    "rounded-full px-3 py-1 text-[12px] font-semibold border transition-colors",
-    active
-      ? "border-[color:var(--green-500)] bg-[color:var(--green-100)] text-[color:var(--green-500)]"
-      : "border-[color:var(--border-secondary)] bg-white text-[color:var(--text-secondary)] hover:border-[color:var(--navy-500)]",
-  );
-}
-
-function initSeverityOn(): Record<Severity, boolean> {
-  return {
-    critical: true,
-    high: true,
-    medium: true,
-    low: true,
-  };
-}
-
-function initRuntimeOn(): Record<RuntimeState, boolean> {
-  return {
-    running: true,
-    integrity_violation: true,
-    not_running: true,
-  };
-}
-
 export function ReleasesListView() {
   const [severityOn, setSeverityOn] = useState(initSeverityOn);
   const [cveId, setCveId] = useState("");
@@ -148,13 +121,17 @@ export function ReleasesListView() {
   const sorted = sortReleasesForList(RELEASES);
 
   const filtered = useMemo(() => {
-    const allSevOn = ALL_SEVERITIES.every((s) => severityOn[s]);
-    const allRunOn = ALL_RUNTIME_STATES.every((s) => runtimeOn[s]);
+    const allSevOn = Object.values(severityOn).every(Boolean);
+    const allRunOn = Object.values(runtimeOn).every(Boolean);
     const cveNeedle = cveId.trim().toLowerCase();
 
     return sorted.filter((r) => {
       if (!allSevOn) {
-        const allowed = new Set(ALL_SEVERITIES.filter((s) => severityOn[s]));
+        const allowed = new Set(
+          (["critical", "high", "medium", "low"] as Severity[]).filter(
+            (s) => severityOn[s],
+          ),
+        );
         if (!r.cves.some((c) => allowed.has(c.cve.severity))) return false;
       }
 
@@ -175,12 +152,11 @@ export function ReleasesListView() {
     });
   }, [sorted, severityOn, cveId, runtimeOn, stage]);
 
-  function toggleSeverity(s: Severity) {
-    setSeverityOn((prev) => ({ ...prev, [s]: !prev[s] }));
-  }
-
-  function toggleRuntime(rs: RuntimeState) {
-    setRuntimeOn((prev) => ({ ...prev, [rs]: !prev[rs] }));
+  function clearAll() {
+    setSeverityOn(initSeverityOn());
+    setRuntimeOn(initRuntimeOn());
+    setStage("any");
+    setCveId("");
   }
 
   function borderUrgency(r: SupportedRelease) {
@@ -193,7 +169,7 @@ export function ReleasesListView() {
   }
 
   return (
-    <div className="mx-auto max-w-[1400px] px-6 pb-12 pt-6">
+    <div className="mx-auto max-w-[1400px] px-6 pb-10 pt-4">
       <PageHeader
         crumbs={[
           { label: "All Projects", href: "/" },
@@ -202,120 +178,44 @@ export function ReleasesListView() {
         ]}
       />
 
-      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <h1 className="text-[24px] font-semibold leading-tight text-[color:var(--text-primary)]">
-            Supported Releases
-          </h1>
-          <span className="mt-3 inline-flex items-center rounded-md bg-[color:var(--navy-100)] px-2 py-0.5 text-[12px] font-semibold text-[color:var(--navy-600)]">
-            {filtered.length} Trusted+Supported
-          </span>
-        </div>
-      </div>
+      <CompactPageTitle
+        title="Supported Releases"
+        meta={`${filtered.length} Trusted+Supported`}
+      />
 
-      <div className="mb-6 space-y-5">
-        <div>
-          <div className="mb-2 text-[12px] font-semibold uppercase text-[color:var(--text-secondary)]">
-            Severity
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {ALL_SEVERITIES.map((s) => (
-              <button
-                key={s}
-                type="button"
-                className={chipActive(severityOn[s])}
-                onClick={() => toggleSeverity(s)}
-              >
-                {s.charAt(0).toUpperCase() + s.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label
-            className="mb-2 block text-[12px] font-semibold uppercase text-[color:var(--text-secondary)]"
-            htmlFor="cve-id-filter"
-          >
-            CVE ID
-          </label>
-          <input
-            id="cve-id-filter"
-            value={cveId}
-            onChange={(e) => setCveId(e.target.value)}
-            placeholder="e.g. CVE-2026-29145"
-            className="h-9 max-w-md rounded-md border border-[color:var(--border-secondary)] bg-white px-3 text-[13px] outline-none ring-[color:var(--navy-500)] focus:ring-2"
-          />
-        </div>
-
-        <div>
-          <div className="mb-2 text-[12px] font-semibold uppercase text-[color:var(--text-secondary)]">
-            Runtime status
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              className={chipActive(runtimeOn.running)}
-              onClick={() => toggleRuntime("running")}
-            >
-              Running
-            </button>
-            <button
-              type="button"
-              className={chipActive(runtimeOn.integrity_violation)}
-              onClick={() => toggleRuntime("integrity_violation")}
-            >
-              Integrity Violation
-            </button>
-            <button
-              type="button"
-              className={chipActive(runtimeOn.not_running)}
-              onClick={() => toggleRuntime("not_running")}
-            >
-              Not Running
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <div className="mb-2 text-[12px] font-semibold uppercase text-[color:var(--text-secondary)]">
-            Stage
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {(["any", "latest", "supported"] as const).map((st) => (
-              <button
-                key={st}
-                type="button"
-                className={chipActive(stage === st)}
-                onClick={() => setStage(st)}
-              >
-                {st === "any" ? "Any" : st === "latest" ? "Latest" : "Supported"}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <FilterToolbar
+        showFindingType={false}
+        severityOn={severityOn}
+        runtimeOn={runtimeOn}
+        stage={stage}
+        cveId={cveId}
+        onSeverityChange={setSeverityOn}
+        onRuntimeChange={setRuntimeOn}
+        onStageChange={setStage}
+        onCveChange={setCveId}
+        onClearAll={clearAll}
+      />
 
       <div className="overflow-auto rounded-lg border border-[color:var(--border-primary)] bg-white shadow-sm">
         <table className="min-w-[1024px] w-full border-collapse text-[13px]">
-          <thead className="bg-[color:var(--surface-secondary)] text-left text-[12px] font-semibold uppercase tracking-wide text-[color:var(--text-secondary)]">
+          <thead className="bg-[color:var(--surface-secondary)] text-left text-[11px] font-semibold uppercase tracking-wide text-[color:var(--text-secondary)]">
             <tr>
-              <th className="sticky top-0 px-4 py-3 font-semibold">
+              <th className="sticky top-0 px-4 py-2.5 font-semibold">
                 Docker image · path
               </th>
-              <th className="sticky top-0 px-4 py-3 font-semibold">
+              <th className="sticky top-0 px-4 py-2.5 font-semibold">
                 Version · trust
               </th>
-              <th className="sticky top-0 px-4 py-3 font-semibold">Running</th>
-              <th className="sticky top-0 px-4 py-3 font-semibold">Open CVE</th>
-              <th className="sticky top-0 px-4 py-3 font-semibold">SLA window</th>
-              <th className="sticky top-0 px-4 py-3 font-semibold">
+              <th className="sticky top-0 px-4 py-2.5 font-semibold">Running</th>
+              <th className="sticky top-0 px-4 py-2.5 font-semibold">Open CVE</th>
+              <th className="sticky top-0 px-4 py-2.5 font-semibold">SLA window</th>
+              <th className="sticky top-0 px-4 py-2.5 font-semibold">
                 Fix lifecycle
               </th>
-              <th className="sticky top-0 px-4 py-3 font-semibold">
+              <th className="sticky top-0 px-4 py-2.5 font-semibold">
                 Last promoted
               </th>
-              <th className="sticky top-0 px-4 py-3 font-semibold" />
+              <th className="sticky top-0 px-4 py-2.5 font-semibold" />
             </tr>
           </thead>
           <tbody>
@@ -328,18 +228,18 @@ export function ReleasesListView() {
                   key={r.id}
                   className={`border-t border-[color:var(--border-primary)] hover:bg-[color:var(--surface-secondary)]/60 ${borderUrgency(r)}`}
                 >
-                  <td className="px-4 py-3 align-middle">
+                  <td className="px-4 py-2.5 align-middle">
                     <Link
                       href={`/releases/${r.id}/`}
-                      className="font-semibold text-[color:var(--platform-teal-accent)] hover:underline"
+                      className="font-semibold text-[color:var(--text-link)] hover:underline"
                     >
                       {r.imageName}
                     </Link>
-                    <div className="mt-1 font-mono text-[11px] text-[color:var(--text-tertiary)]">
+                    <div className="mt-0.5 font-mono text-[11px] text-[color:var(--text-tertiary)]">
                       {r.imagePath}
                     </div>
                   </td>
-                  <td className="px-4 py-3 align-middle">
+                  <td className="px-4 py-2.5 align-middle">
                     <div className="flex flex-wrap gap-2">
                       <span className="rounded bg-[color:var(--surface-tertiary)] px-2 py-0.5 font-mono text-[12px]">
                         {r.version}
@@ -355,10 +255,10 @@ export function ReleasesListView() {
                       </span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 align-middle">
+                  <td className="px-4 py-2.5 align-middle">
                     <RunningBadge r={r} />
                   </td>
-                  <td className="px-4 py-3 align-middle">
+                  <td className="px-4 py-2.5 align-middle">
                     <SeverityChips
                       counts={{
                         critical: counts.critical,
@@ -367,13 +267,13 @@ export function ReleasesListView() {
                       }}
                     />
                   </td>
-                  <td className="px-4 py-3 align-middle">
+                  <td className="px-4 py-2.5 align-middle">
                     <SLAPill worst={worst} />
                   </td>
-                  <td className="px-4 py-3 align-middle">
+                  <td className="px-4 py-2.5 align-middle">
                     <LifecycleStepBar current={lcState} />
                   </td>
-                  <td className="px-4 py-3 align-middle text-[12px] text-[color:var(--text-secondary)]">
+                  <td className="px-4 py-2.5 align-middle text-[12px] text-[color:var(--text-secondary)]">
                     {formatShort(
                       r.timeline[r.timeline.length - 1]?.ts ?? r.lastUpdated,
                     )}{" "}
@@ -390,7 +290,7 @@ export function ReleasesListView() {
                       })()}
                     </span>
                   </td>
-                  <td className="px-4 py-3 align-middle text-right">
+                  <td className="px-4 py-2.5 align-middle text-right">
                     <button
                       type="button"
                       className="rounded p-1 hover:bg-[color:var(--surface-tertiary)]"
@@ -450,35 +350,28 @@ function RunningBadge({ r }: { r: SupportedRelease }) {
 
   if (r.runtime.state === "running") {
     return (
-      <span title={clusterTip} className="inline-flex cursor-default">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--green-100)] px-2 py-1 text-[11px] font-semibold text-[color:var(--green-500)]">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[color:var(--green-500)] opacity-40" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-[color:var(--green-500)]" />
-          </span>
-          Running
-        </span>
+      <span title={clusterTip} className="inline-flex cursor-default items-center gap-1.5 text-[11px] font-semibold text-[color:var(--text-secondary)]">
+        <span className="h-2 w-2 rounded-full bg-[color:var(--color-success)]" />
+        Running
       </span>
     );
   }
 
   if (r.runtime.state === "integrity_violation") {
     return (
-      <span title={integrityTip} className="inline-flex cursor-default">
-        <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--orange-100)] px-2 py-1 text-[11px] font-semibold text-[color:var(--orange-600)]">
-          <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
-          Integrity Violation
-        </span>
+      <span title={integrityTip} className="inline-flex cursor-default items-center gap-1.5 text-[11px] font-semibold text-[color:var(--text-secondary)]">
+        <span className="h-2 w-2 rounded-full bg-[color:var(--color-error)]" />
+        <ShieldAlert className="h-3.5 w-3.5 shrink-0 text-[color:var(--color-error)]" />
+        Integrity Violation
       </span>
     );
   }
 
   return (
-    <span title={clusterTip} className="inline-flex cursor-default">
-      <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--surface-secondary)] px-2 py-1 text-[11px] font-semibold text-[color:var(--text-tertiary)]">
-        <CircleSlash className="h-3.5 w-3.5" />
-        Idle
-      </span>
+    <span title={clusterTip} className="inline-flex cursor-default items-center gap-1.5 text-[11px] font-semibold text-[color:var(--text-tertiary)]">
+      <span className="h-2 w-2 rounded-full bg-[color:var(--text-tertiary)]" />
+      <CircleSlash className="h-3.5 w-3.5" />
+      Idle
     </span>
   );
 }
