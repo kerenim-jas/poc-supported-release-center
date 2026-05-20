@@ -51,15 +51,16 @@
   --navy-600: #415980;
   --orange-500: #f59e0b;
 
-  /* Severity */
-  --severity-critical: #fb515b;
+  /* Severity — JFrog DS severity badge fills (RwQ1UiZpdsp5kM7iMEZFDf) */
+  --severity-critical: #9f1420;
   --severity-critical-bg: #fedcde;
-  --severity-high: #fb515b;
+  --severity-high: #e93838;
   --severity-high-bg: #fedcde;
   --severity-medium: #f59e0b;
   --severity-medium-bg: #fff3d6;
-  --severity-low: #3eb065;
-  --severity-low-bg: #d9fad2;
+  --severity-low: #c9a227;
+  --severity-low-bg: #fff8d6;
+  --severity-unknown: #999db4;
 
   /* Semantic state */
   --color-success: var(--brand-green);

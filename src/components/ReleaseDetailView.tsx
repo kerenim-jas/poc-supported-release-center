@@ -11,6 +11,7 @@ import {
 } from "@/components/icons/JFrogIcons";
 import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
+import { SeverityPill } from "@/components/SeverityIcon";
 import type { Application, CVEInstance, SupportedRelease } from "@/lib/types";
 import { cn } from "@/lib/cn";
 import { dimensionCount } from "@/lib/findings";
@@ -598,39 +599,6 @@ function slaPill(ins: CVEInstance) {
 
   return (
     <span className={`inline-flex rounded-full border px-3 py-0.5 text-[11px] font-semibold ${cls}`}>{label}</span>
-  );
-}
-
-function SeverityPill({
-  severity,
-  label,
-  muted,
-}: {
-  severity: CVEInstance["cve"]["severity"];
-  label?: string;
-  muted?: boolean;
-}) {
-  const display = `${label ?? ""} ${label ? severity : severity}`.trim();
-  const map: Record<typeof severity, string> = {
-    critical: "var(--severity-critical)",
-    high: "var(--severity-high)",
-    medium: "var(--severity-medium)",
-    low: "var(--severity-low)",
-  };
-  if (muted) {
-    return (
-      <span className="rounded-full border border-[color:var(--border-secondary)] bg-[color:var(--surface-primary)] px-2 py-0.5 text-[11px] font-semibold capitalize text-[color:var(--text-secondary)]">
-        {display}
-      </span>
-    );
-  }
-  const color = map[severity];
-  return (
-    <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold text-white`}
-      style={{ backgroundColor: color }}
-    >
-      {display}
-    </span>
   );
 }
 

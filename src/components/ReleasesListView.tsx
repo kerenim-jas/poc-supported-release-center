@@ -8,6 +8,7 @@ import {
   MoreHorizontalIcon,
   ShieldAlertIcon,
 } from "@/components/icons/JFrogIcons";
+import { SeverityIcon } from "@/components/SeverityIcon";
 import { PageHeader } from "@/components/PageHeader";
 import { CompactPageTitle } from "@/components/CompactPageTitle";
 import { FilterToolbar } from "@/components/FilterToolbar";
@@ -100,9 +101,10 @@ function SeverityChips({
         counts[k] ? (
           <span
             key={k}
-            className="rounded px-2 py-0.5 font-mono text-[11px] font-semibold"
+            className="inline-flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[11px] font-semibold"
             style={{ background: bg, color: fg }}
           >
+            <SeverityIcon severity={k} size={14} />
             {k === "critical" ? "Crit" : k === "high" ? "High" : "Med"}{" "}
             {counts[k]}
           </span>

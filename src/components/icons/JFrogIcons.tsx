@@ -1,9 +1,11 @@
-/* Extracted from Figma LeapKit via Live Assessment canvas (cjzhDLB2uHfmtVNCCiQPaH) — v0.8 */
+/* Icons from Live Assessment + JFrog DS severity badge (Scan Results / RwQ1UiZpdsp5kM7iMEZFDf) — v0.9 */
 import type { SVGProps } from "react";
+import { SEVERITY_VIEWBOX, SHIELD_PATH } from "./severity-paths";
 
 export type JFrogIconProps = SVGProps<SVGSVGElement> & {
   size?: number;
   className?: string;
+  title?: string;
 };
 
 function base({ size = 16, className, ...rest }: JFrogIconProps) {
@@ -67,15 +69,65 @@ export function FilterIcon({ size = 16, className, ...rest }: JFrogIconProps) {
   );
 }
 
-export function SeverityShieldIcon({ size = 16, className, ...rest }: JFrogIconProps) {
+/** Figma: severity badge — node 315:32990 (critical), 315:32933 (high), 315:32934 (medium), 315:32938 (low), 315:32941 (unknown) */
+export function SeverityCriticalIcon({ size = 16, className, title, ...rest }: JFrogIconProps) {
   return (
-    <svg {...base({ size, className, ...rest })} viewBox="0 0 15 16.6667" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <g>
-<path fillRule="evenodd" clipRule="evenodd" d="M6.73916 0.151053C7.22488 -0.0503509 7.76877 -0.0503509 8.25449 0.151053L14.2007 2.59067C14.4385 2.68852 14.6418 2.85685 14.7844 3.0738C14.9269 3.29074 15.002 3.54628 15 3.80722V6.71524C15.0045 8.93175 14.3083 11.091 13.0142 12.874C11.7201 14.657 9.89666 15.9692 7.81332 16.6168C7.6052 16.6833 7.38206 16.6833 7.17394 16.6168C5.09035 15.9672 3.26768 14.6522 1.97567 12.8666C0.683657 11.081 -0.00903985 8.91956 8.90861e-05 6.70223V3.80722C0.000604172 3.54849 0.0769181 3.2958 0.21928 3.08141C0.361642 2.86703 0.563588 2.7007 0.799315 2.60368L6.73916 0.151053Z" fill="#999DB4"/>
-<path d="M4.03846 7.7381C4.03846 7.40935 4.29676 7.14286 4.61538 7.14286H10.3846C10.7032 7.14286 10.9615 7.40935 10.9615 7.7381C10.9615 8.06684 10.7032 8.33333 10.3846 8.33333H4.61538C4.29676 8.33333 4.03846 8.06684 4.03846 7.7381Z" fill="currentColor"/>
-</g>
+    <svg {...base({ size, className, ...rest })} viewBox={SEVERITY_VIEWBOX} fill="none" xmlns="http://www.w3.org/2000/svg" role={title ? "img" : undefined}>
+      {title ? <title>{title}</title> : null}
+      <path fillRule="evenodd" clipRule="evenodd" d={SHIELD_PATH} fill="#9F1420" />
+      <path d="M9.56903 14.8375C9.70886 14.6932 9.78742 14.4976 9.78742 14.2935C9.78742 14.0895 9.70886 13.8938 9.56903 13.7496C9.4292 13.6053 9.23955 13.5242 9.0418 13.5242C8.84253 13.5242 8.65117 13.6047 8.50876 13.7485C8.36634 13.8923 8.28421 14.088 8.27997 14.2935C8.28421 14.4991 8.36634 14.6947 8.50876 14.8385C8.65117 14.9824 8.84253 15.0629 9.0418 15.0628C9.23955 15.0628 9.4292 14.9818 9.56903 14.8375Z" fill="#ffffff" />
+      <path d="M8.50311 5.94451C8.36024 6.09192 8.27997 6.29184 8.27997 6.5003V11.1495C8.27997 11.3579 8.36024 11.5579 8.50311 11.7053C8.64598 11.8527 8.83975 11.9355 9.0418 11.9355C9.1411 11.9355 9.2394 11.9151 9.33093 11.8754C9.42247 11.8357 9.50539 11.7775 9.57485 11.7043C9.6443 11.6311 9.69888 11.5443 9.73538 11.449C9.77189 11.3537 9.78958 11.2519 9.78742 11.1495V6.5003C9.78958 6.39788 9.77189 6.29604 9.73538 6.20077C9.69888 6.10549 9.6443 6.01871 9.57485 5.94549C9.50539 5.87228 9.42247 5.81411 9.33093 5.77441C9.2394 5.7347 9.1411 5.71426 9.0418 5.71429C8.83975 5.71429 8.64598 5.79711 8.50311 5.94451Z" fill="#ffffff" />
     </svg>
   );
+}
+
+export function SeverityHighIcon({ size = 16, className, title, ...rest }: JFrogIconProps) {
+  return (
+    <svg {...base({ size, className, ...rest })} viewBox={SEVERITY_VIEWBOX} fill="none" xmlns="http://www.w3.org/2000/svg" role={title ? "img" : undefined}>
+      {title ? <title>{title}</title> : null}
+      <path fillRule="evenodd" clipRule="evenodd" d={SHIELD_PATH} fill="#E93838" />
+      <path d="M12.5542 14.1783H11.0938V10.0412H6.99271V14.1783H5.53846V5H6.99271V8.75419H11.0938V5H12.5542V14.1783Z" fill="#ffffff" />
+    </svg>
+  );
+}
+
+export function SeverityMediumIcon({ size = 16, className, title, ...rest }: JFrogIconProps) {
+  return (
+    <svg {...base({ size, className, ...rest })} viewBox={SEVERITY_VIEWBOX} fill="none" xmlns="http://www.w3.org/2000/svg" role={title ? "img" : undefined}>
+      {title ? <title>{title}</title> : null}
+      <path fillRule="evenodd" clipRule="evenodd" d={SHIELD_PATH} fill="#F59E0B" />
+      <path d="M8.27632 14.3227L5.69639 6.65737H5.64772C5.71668 7.79576 5.75116 8.863 5.75116 9.8591V14.3227H4.43077V5.14439H6.48133L8.95173 12.4456H8.98824L11.5317 5.14439H13.5883V14.3227H12.1888V9.78376C12.1888 9.32757 12.1989 8.73326 12.2192 8.00084C12.2436 7.26842 12.2639 6.82478 12.2801 6.66992H12.2314L9.5602 14.3227H8.27632Z" fill="#ffffff" />
+    </svg>
+  );
+}
+
+export function SeverityLowIcon({ size = 16, className, title, ...rest }: JFrogIconProps) {
+  return (
+    <svg {...base({ size, className, ...rest })} viewBox={SEVERITY_VIEWBOX} fill="none" xmlns="http://www.w3.org/2000/svg" role={title ? "img" : undefined}>
+      {title ? <title>{title}</title> : null}
+      <path d={SHIELD_PATH} fill="#FFCF31" />
+      <path d="M6.92308 14.1783V5H8.37733V12.8913H12.1438V14.1783H6.92308Z" fill="#ffffff" />
+    </svg>
+  );
+}
+
+export function SeverityUnknownIcon({ size = 16, className, title, ...rest }: JFrogIconProps) {
+  return (
+    <svg {...base({ size, className, ...rest })} viewBox={SEVERITY_VIEWBOX} fill="none" xmlns="http://www.w3.org/2000/svg" role={title ? "img" : undefined}>
+      {title ? <title>{title}</title> : null}
+      <path fillRule="evenodd" clipRule="evenodd" d={SHIELD_PATH} fill="#999DB4" />
+      <path d="M4.84615 9.28571C4.84615 8.89123 5.15611 8.57143 5.53846 8.57143H12.4615C12.8439 8.57143 13.1538 8.89123 13.1538 9.28571C13.1538 9.6802 12.8439 10 12.4615 10H5.53846C5.15611 10 4.84615 9.6802 4.84615 9.28571Z" fill="#ffffff" />
+    </svg>
+  );
+}
+
+/** No dedicated info-level badge in the DS severity set — uses unknown glyph */
+export function SeverityInfoIcon(props: JFrogIconProps) {
+  return <SeverityUnknownIcon {...props} title={props.title ?? "Info"} />;
+}
+
+export function SeverityShieldIcon(props: JFrogIconProps) {
+  return <SeverityUnknownIcon {...props} />;
 }
 
 export function ExternalLinkIcon({ size = 16, className, ...rest }: JFrogIconProps) {
@@ -177,7 +229,7 @@ export function XIcon(props: JFrogIconProps) {
 }
 
 export function VulnerabilityIcon(props: JFrogIconProps) {
-  return <SeverityShieldIcon {...props} />;
+  return <PlatformSecurityIcon {...props} />;
 }
 
 export function ExposureIcon(props: JFrogIconProps) {

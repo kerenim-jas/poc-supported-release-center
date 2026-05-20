@@ -7,6 +7,7 @@ import {
   FilterIcon,
   SearchIcon,
 } from "@/components/icons/JFrogIcons";
+import { SeverityIcon } from "@/components/SeverityIcon";
 import type { FindingDimension, RuntimeState, Severity } from "@/lib/types";
 import { ALL_FINDING_DIMENSIONS, FINDING_TYPE_LABELS } from "@/components/FindingChips";
 import {
@@ -164,6 +165,7 @@ export function FilterToolbar({
               onSeverityChange({ ...severityOn, [s]: !severityOn[s] })
             }
             label={s.charAt(0).toUpperCase() + s.slice(1)}
+            icon={<SeverityIcon severity={s} size={14} />}
           />
         ))}
       </FilterDropdown>
@@ -325,11 +327,13 @@ function CheckboxRow({
   checked,
   onChange,
   dot,
+  icon,
 }: {
   label: string;
   checked: boolean;
   onChange: () => void;
   dot?: string;
+  icon?: React.ReactNode;
 }) {
   return (
     <label className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-s)] px-2 py-1.5 text-[12px] hover:bg-[color:var(--surface-secondary)]">
@@ -339,12 +343,12 @@ function CheckboxRow({
         onChange={onChange}
         className="accent-[color:var(--brand-green)]"
       />
-      {dot ? (
+      {icon ?? (dot ? (
         <span
           className="h-2 w-2 shrink-0 rounded-full"
           style={{ background: dot }}
         />
-      ) : null}
+      ) : null)}
       {label}
     </label>
   );
