@@ -128,9 +128,9 @@ export function ReleaseDetailView({
       <div className="mt-6 flex gap-8">
         {/* Left facts */}
         <aside className="w-[320px] shrink-0 space-y-6">
-          <div className="rounded-lg border border-[color:var(--border-primary)] bg-white p-6 shadow-sm">
+          <div className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] p-6 shadow-sm">
             <div className="flex items-start gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[color:var(--navy-100)] font-mono text-[11px] font-bold text-[color:var(--navy-600)]">
+              <div className="flex h-14 w-14 items-center justify-center rounded-[var(--radius-s)] bg-[color:var(--navy-100)] font-mono text-[11px] font-bold text-[color:var(--navy-600)]">
                 img
               </div>
               <div className="min-w-0 flex-1">
@@ -153,7 +153,7 @@ export function ReleaseDetailView({
                 Version focus
               </label>
               <select
-                className="mt-1 block w-full rounded-md border border-[color:var(--border-secondary)] bg-white px-3 py-2 text-[13px] font-semibold pr-10"
+                className="mt-1 block w-full rounded-md border border-[color:var(--border-secondary)] bg-[color:var(--surface-primary)] px-3 py-2 text-[13px] font-semibold pr-10"
                 value={initial.id}
                 aria-label="Version switch"
                 onChange={(e) => router.push(`/releases/${e.target.value}/`)}
@@ -337,7 +337,7 @@ export function ReleaseDetailView({
             ))}
           </div>
 
-          <div className="rounded-xl border border-[color:var(--border-primary)] bg-white p-6 shadow-sm">
+          <div className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] p-6 shadow-sm">
             {tab === "Version Timeline" && <TimelinePane release={initial} />}
             {tab === "Vulnerabilities" && (
               <CvesPane release={initial} expandedId={cveOpenId} onPick={setCveOpenId} />
@@ -378,7 +378,7 @@ function FactCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-[color:var(--border-primary)] bg-white px-5 py-4 shadow-sm">
+    <div className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] px-5 py-4 shadow-sm">
       <div className="text-[13px] font-semibold">{title}</div>
       <div className="mt-3 space-y-2 text-[13px]">{children}</div>
     </div>
@@ -477,7 +477,7 @@ function CvesPane({
 }) {
   return (
     <div className="flex gap-4">
-      <div className="w-[320px] shrink-0 divide-y divide-[color:var(--border-primary)] border border-[color:var(--border-primary)] rounded-lg bg-[color:var(--surface-secondary)] overflow-hidden">
+      <div className="w-[320px] shrink-0 divide-y divide-[color:var(--border-primary)] border border-[color:var(--border-primary)] rounded-[var(--radius-s)] bg-[color:var(--surface-secondary)] overflow-hidden">
         {release.cves.length === 0 ? (
           <p className="p-6 text-[13px] text-[color:var(--text-secondary)]">
             No outstanding CVE exposures on this Trusted+Supported line.
@@ -511,7 +511,7 @@ function CvesPane({
           })
         )}
       </div>
-      <div className="min-w-0 flex-1 rounded-lg border border-[color:var(--border-primary)] bg-[color:var(--surface-secondary)] px-6 py-4">
+      <div className="min-w-0 flex-1 rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-secondary)] px-6 py-4">
         {expandedId ? (
           (() => {
             const sel = release.cves.find((c) => c.cve.id === expandedId)!;
@@ -551,7 +551,7 @@ function CvesPane({
                   </button>
                   <button
                     type="button"
-                    className="mt-3 inline-flex w-fit items-center gap-2 rounded-md border border-[color:var(--border-secondary)] bg-white px-3 py-2 text-[13px] font-semibold text-[color:var(--platform-teal-accent)]"
+                    className="mt-3 inline-flex w-fit items-center gap-2 rounded-md border border-[color:var(--border-secondary)] bg-[color:var(--surface-primary)] px-3 py-2 text-[13px] font-semibold text-[color:var(--platform-teal-accent)]"
                   >
                     <ExternalLink className="h-4 w-4" />
                     Decorative Jira link
@@ -612,14 +612,14 @@ function SeverityPill({
 }) {
   const display = `${label ?? ""} ${label ? severity : severity}`.trim();
   const map: Record<typeof severity, string> = {
-    critical: "#b91c1c",
-    high: "#b45309",
-    medium: "#415980",
-    low: "#708cb2",
+    critical: "var(--severity-critical)",
+    high: "var(--severity-high)",
+    medium: "var(--severity-medium)",
+    low: "var(--severity-low)",
   };
   if (muted) {
     return (
-      <span className="rounded-full border border-[color:var(--border-secondary)] bg-white px-2 py-0.5 text-[11px] font-semibold capitalize text-[color:var(--text-secondary)]">
+      <span className="rounded-full border border-[color:var(--border-secondary)] bg-[color:var(--surface-primary)] px-2 py-0.5 text-[11px] font-semibold capitalize text-[color:var(--text-secondary)]">
         {display}
       </span>
     );
@@ -652,7 +652,7 @@ function RiskPane({ release }: { release: SupportedRelease }) {
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <div className="rounded-lg border border-[color:var(--border-primary)] p-6">
+      <div className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] p-6">
         <h4 className="text-[13px] font-semibold uppercase text-[color:var(--text-secondary)]">
           Exposure signal
         </h4>
@@ -661,19 +661,19 @@ function RiskPane({ release }: { release: SupportedRelease }) {
           Critical CVEs unresolved on this Supported line  
         </p>
       </div>
-      <div className="rounded-lg border border-[color:var(--border-primary)] p-6">
+      <div className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] p-6">
         <h4 className="text-[13px] font-semibold uppercase text-[color:var(--text-secondary)]">
           Oldest open vuln dwell
         </h4>
         <p className="mt-2 text-[30px] font-bold text-[color:var(--navy-600)]">{oldestDays} days</p>
       </div>
-      <div className="rounded-lg border border-[color:var(--border-primary)] p-6">
+      <div className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] p-6">
         <h4 className="text-[13px] font-semibold uppercase text-[color:var(--text-secondary)]">
           Tenants on this version
         </h4>
         <p className="mt-2 text-[26px] font-bold">{release.customerImpact}</p>
       </div>
-      <div className="rounded-lg border border-[color:var(--border-primary)] p-6">
+      <div className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] p-6">
         <h4 className="text-[13px] font-semibold uppercase text-[color:var(--text-secondary)]">
           Rollout health snapshot
         </h4>
@@ -775,7 +775,7 @@ function SASTPane({ release }: { release: SupportedRelease }) {
         release.sastFindings.map((s) => (
           <div
             key={s.id}
-            className="rounded-lg border border-[color:var(--border-primary)] p-4"
+            className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] p-4"
           >
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-mono text-[12px] font-semibold">{s.cweId}</span>

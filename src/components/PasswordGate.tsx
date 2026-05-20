@@ -87,7 +87,7 @@ export function PasswordGate({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen w-full items-center justify-center bg-[color:var(--background-plain)] px-4">
-      <div className="w-full max-w-[400px] rounded-lg border border-[color:var(--border-primary)] bg-white p-6 shadow-sm">
+      <div className="w-full max-w-[400px] rounded-lg border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] p-6 shadow-sm">
         <div className="mb-4 flex items-center justify-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[color:var(--green-100)] text-[color:var(--green-500)]">
             <Lock className="h-5 w-5" />
@@ -111,7 +111,7 @@ export function PasswordGate({ children }: { children: React.ReactNode }) {
             onChange={(e) => setPwd(e.target.value)}
             disabled={busy}
             aria-label="Access password"
-            className="h-10 w-full rounded-md border border-[color:var(--border-secondary)] bg-white px-3 text-[14px] text-[color:var(--text-primary)] placeholder:text-[color:var(--text-tertiary)] focus:border-[color:var(--navy-500)] focus:outline-none focus:ring-2 focus:ring-[color:var(--navy-500)]/20"
+            className="h-10 w-full rounded-md border border-[color:var(--border-secondary)] bg-[color:var(--surface-primary)] px-3 text-[14px] text-[color:var(--text-primary)] placeholder:text-[color:var(--text-tertiary)] focus:border-[color:var(--navy-500)] focus:outline-none focus:ring-2 focus:ring-[color:var(--navy-500)]/20"
           />
 
           {error && (

@@ -67,7 +67,7 @@ export function DashboardView() {
 
       <section className="grid gap-3 lg:grid-cols-3">
         {/* Overview */}
-        <div className="rounded-lg border border-[color:var(--border-primary)] bg-white p-4 shadow-sm">
+        <div className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] p-4 shadow-sm">
           <div className="mb-2 flex items-start justify-between gap-2">
             <div>
               <p className="text-[12px] font-semibold uppercase tracking-wide text-[color:var(--text-secondary)]">
@@ -115,7 +115,7 @@ export function DashboardView() {
 
         {/* Dream widget */}
         <div
-          className="flex flex-col rounded-lg border-[3px] bg-[color:var(--platform-post-release-bg)] p-4 shadow-sm lg:col-span-1"
+          className="flex flex-col rounded-[var(--radius-s)] border-[3px] bg-[color:var(--platform-post-release-bg)] p-4 shadow-sm lg:col-span-1"
           style={{ borderColor: "var(--platform-post-release-border)" }}
         >
           <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[color:var(--text-primary)]">
@@ -137,7 +137,7 @@ export function DashboardView() {
               {dreamRows.slice(0, 6).map((row) => (
                 <li
                   key={row.applicationId}
-                  className="rounded-md border border-[color:var(--border-primary)] bg-white px-3 py-2.5 shadow-sm"
+                  className="rounded-md border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] px-3 py-2.5 shadow-sm"
                 >
                   <Link
                     href={`/applications/${row.applicationId}/`}
@@ -172,7 +172,7 @@ export function DashboardView() {
         </div>
 
         {/* Bottlenecks */}
-        <div className="rounded-lg border-[2px] border-[color:var(--green-500)] bg-[color:var(--green-100)]/35 p-4 shadow-sm">
+        <div className="rounded-[var(--radius-s)] border-[2px] border-[color:var(--green-500)] bg-[color:var(--green-100)]/35 p-4 shadow-sm">
           <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[color:var(--text-primary)]">
             Fix Lifecycle Bottlenecks
           </h3>
@@ -181,7 +181,7 @@ export function DashboardView() {
           </p>
           <ul className="mt-4 space-y-3 text-[13px]">
             {FIX_BOTTLENECKS.map((b) => (
-              <li key={b.cveId + b.service} className="rounded-md bg-white/80 px-3 py-2 shadow-sm">
+              <li key={b.cveId + b.service} className="rounded-md bg-[color:var(--surface-primary)]/80 px-3 py-2 shadow-sm">
                 <span className="font-semibold text-[color:var(--text-primary)]">{b.cveId}</span>{" "}
                 <span className="text-[color:var(--text-secondary)]">
                   · {b.applicationName ?? b.service}
@@ -228,7 +228,7 @@ export function DashboardView() {
         />
       </section>
 
-      <section className="mt-10 rounded-lg border border-[color:var(--border-primary)] bg-white p-6 shadow-sm">
+      <section className="mt-10 rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] p-6 shadow-sm">
         <h3 className="text-[14px] font-semibold uppercase tracking-wide text-[color:var(--text-secondary)]">
           Recent Activity
         </h3>
@@ -236,7 +236,7 @@ export function DashboardView() {
           {RECENT_ACTIVITY.map((evt, idx) => (
             <li key={evt.ts + idx} className="relative pl-9 pb-6 last:pb-0">
               <span
-                className="absolute left-[-5px] top-1 flex h-[10px] w-[10px] rounded-full bg-[color:var(--border-secondary)] ring-4 ring-white"
+                className="absolute left-[-5px] top-1 flex h-[10px] w-[10px] rounded-full bg-[color:var(--border-secondary)] ring-4 ring-[color:var(--surface-primary)]"
                 style={{
                   background:
                     evt.tone === "green"
@@ -244,7 +244,7 @@ export function DashboardView() {
                       : evt.tone === "amber"
                         ? "var(--orange-500)"
                         : "var(--red-500)",
-                  boxShadow: "0 0 0 3px rgba(62,176,101,0.15)",
+                  boxShadow: "0 0 0 3px var(--platform-focus-ring)",
                 }}
               />
               <p className="text-[13px] text-[color:var(--text-secondary)]">
@@ -293,7 +293,7 @@ function Kpi({
           ? "text-[color:var(--orange-500)]"
           : "text-[color:var(--text-primary)]";
   return (
-    <article className="rounded-lg border border-[color:var(--border-primary)] bg-white px-5 py-4 shadow-sm">
+    <article className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] px-5 py-4 shadow-sm">
       <h4 className="text-[12px] font-semibold uppercase tracking-wide text-[color:var(--text-secondary)]">
         {title}
       </h4>

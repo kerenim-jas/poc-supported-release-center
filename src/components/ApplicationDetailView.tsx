@@ -78,13 +78,13 @@ export function ApplicationDetailView({
 
       <div className="mt-4 flex gap-8">
         <aside className="w-[320px] shrink-0 space-y-4">
-          <div className="overflow-hidden rounded-lg border border-[color:var(--border-primary)] bg-white shadow-sm">
+          <div className="overflow-hidden rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] shadow-sm">
             <div
               className="h-1 w-full"
               style={{ background: tierColor }}
             />
             <div className="p-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[color:var(--navy-100)] text-[14px] font-bold text-[color:var(--navy-600)]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-s)] bg-[color:var(--navy-100)] text-[14px] font-bold text-[color:var(--navy-600)]">
                 app
               </div>
               <h2 className="mt-3 text-[18px] font-semibold">{application.name}</h2>
@@ -181,7 +181,7 @@ export function ApplicationDetailView({
             </div>
           </FactCard>
 
-          <div className="rounded-lg border border-[color:var(--border-primary)] bg-[color:var(--navy-100)]/40 p-4">
+          <div className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--navy-100)]/40 p-4">
             <p className="text-[12px] font-semibold uppercase text-[color:var(--text-secondary)]">
               From runtime to owner
             </p>
@@ -218,7 +218,7 @@ export function ApplicationDetailView({
             ))}
           </div>
 
-          <div className="mt-3 rounded-xl border border-[color:var(--border-primary)] bg-white p-4 shadow-sm">
+          <div className="mt-3 rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] p-4 shadow-sm">
             {tab === "Releases" && (
               <ReleasesTab releases={releases} />
             )}
@@ -413,7 +413,7 @@ function FindingsSummary({ releases }: { releases: SupportedRelease[] }) {
       {dims.map((d) => (
         <div
           key={d.key}
-          className="rounded-lg border border-[color:var(--border-primary)] p-4"
+          className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] p-4"
         >
           <h4 className="text-[13px] font-semibold">{d.label}</h4>
           <p className="mt-2 text-[28px] font-bold">{counts[d.key]}</p>
@@ -483,7 +483,7 @@ function FactCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-[color:var(--border-primary)] bg-white px-5 py-4 shadow-sm">
+    <div className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] px-5 py-4 shadow-sm">
       <div className="text-[13px] font-semibold">{title}</div>
       <div className="mt-3 space-y-2 text-[13px]">{children}</div>
     </div>

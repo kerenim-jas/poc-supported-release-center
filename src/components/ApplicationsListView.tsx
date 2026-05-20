@@ -164,7 +164,7 @@ export function ApplicationsListView() {
   }
 
   return (
-    <div className="mx-auto max-w-[1400px] px-6 pb-10 pt-4">
+    <div className="mx-auto max-w-[1400px] px-[var(--space-l)] pb-[var(--space-l)] pt-[var(--space-s)]">
       <PageHeader
         crumbs={[
           { label: "All Projects", href: "/" },
@@ -196,18 +196,18 @@ export function ApplicationsListView() {
         onClearAll={clearAll}
       />
 
-      <div className="overflow-auto rounded-lg border border-[color:var(--border-primary)] bg-white shadow-sm">
-        <table className="min-w-[1100px] w-full border-collapse text-[13px]">
-          <thead className="bg-[color:var(--surface-secondary)] text-left text-[11px] font-semibold uppercase tracking-wide text-[color:var(--text-secondary)]">
-            <tr>
-              <th className="px-4 py-2.5">Application</th>
-              <th className="px-4 py-2.5">Dev owner</th>
-              <th className="px-4 py-2.5">SLA policy</th>
-              <th className="px-4 py-2.5">Releases</th>
-              <th className="px-4 py-2.5">Findings rollup</th>
-              <th className="px-4 py-2.5">Worst SLA</th>
-              <th className="px-4 py-2.5">Tenants</th>
-              <th className="px-4 py-2.5" />
+      <div className="overflow-auto rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] shadow-[var(--shadow-sunken)]">
+        <table className="min-w-[1100px] w-full border-collapse">
+          <thead className="text-left">
+            <tr className="table-header-row">
+              <th>Application</th>
+              <th>Dev owner</th>
+              <th>SLA policy</th>
+              <th>Releases</th>
+              <th>Findings rollup</th>
+              <th>Worst SLA</th>
+              <th>Tenants</th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -219,15 +219,12 @@ export function ApplicationsListView() {
               return (
                 <tr
                   key={app.id}
-                  className={cn(
-                    "border-t border-[color:var(--border-primary)] hover:bg-[color:var(--surface-secondary)]/60",
-                    borderUrgency(rs),
-                  )}
+                  className={cn("table-data-row", borderUrgency(rs))}
                 >
-                  <td className="px-4 py-2.5 align-middle">
+                  <td>
                     <Link
                       href={`/applications/${app.id}/`}
-                      className="font-semibold text-[color:var(--text-link)] hover:underline"
+                      className="font-semibold text-[color:var(--text-link)] no-underline hover:underline"
                     >
                       {app.name}
                     </Link>
@@ -235,7 +232,7 @@ export function ApplicationsListView() {
                       {releaseLabels(app, RELEASES)}
                     </div>
                   </td>
-                  <td className="px-4 py-2.5 align-middle">
+                  <td>
                     <div className="flex items-center gap-2">
                       <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--navy-100)] text-[11px] font-bold text-[color:var(--navy-600)]">
                         {initial}
@@ -248,20 +245,20 @@ export function ApplicationsListView() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-2.5 align-middle">
+                  <td>
                     <Link
                       href="/policy/"
-                      className="inline-flex rounded-full border border-[color:var(--border-secondary)] bg-[color:var(--surface-secondary)] px-2.5 py-0.5 text-[11px] font-semibold text-[color:var(--navy-600)] hover:border-[color:var(--navy-500)]"
+                      className="inline-flex rounded-[var(--radius-s)] border border-[color:var(--border-secondary)] bg-[color:var(--surface-secondary)] px-2 py-0.5 text-[11px] font-semibold text-[color:var(--text-link)] no-underline hover:border-[color:var(--border-strong)] hover:underline"
                     >
                       {app.slaPolicy.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-2.5 align-middle">
-                    <span className="rounded bg-[color:var(--surface-tertiary)] px-2 py-0.5 text-[11px] font-semibold">
+                  <td>
+                    <span className="rounded-[var(--radius-s)] bg-[color:var(--navy-100)] px-2 py-0.5 text-[11px] font-semibold">
                       {releaseSummaryChip(app, RELEASES)}
                     </span>
                   </td>
-                  <td className="px-4 py-2.5 align-middle">
+                  <td>
                     <FindingDimensionChips
                       counts={{
                         vulnerabilities: counts.vulnerabilities,
@@ -272,19 +269,19 @@ export function ApplicationsListView() {
                       }}
                     />
                   </td>
-                  <td className="px-4 py-2.5 align-middle">
+                  <td>
                     <SLAPill worst={worst} />
                   </td>
-                  <td className="px-4 py-2.5 align-middle">
+                  <td>
                     <span className="inline-flex items-center gap-1 font-semibold">
                       <Building2 className="h-3.5 w-3.5 text-[color:var(--icon-secondary)]" />
                       {appTenantSum(rs)}
                     </span>
                   </td>
-                  <td className="px-4 py-2.5 text-right">
+                  <td className="text-right">
                     <button
                       type="button"
-                      className="rounded p-1 hover:bg-[color:var(--surface-tertiary)]"
+                      className="rounded-[var(--radius-s)] p-1 hover:bg-[color:var(--surface-secondary)]"
                       aria-label="Row actions"
                     >
                       <MoreHorizontal className="h-5 w-5 text-[color:var(--icon-tertiary)]" />
@@ -307,20 +304,20 @@ function SLAPill({
 }) {
   if (worst.status === "breached") {
     return (
-      <span className="inline-flex rounded-full bg-[color:var(--red-100)] px-3 py-1 text-[11px] font-semibold text-[color:var(--red-600)]">
+      <span className="inline-flex rounded-[var(--radius-s)] bg-[color:var(--severity-critical-bg)] px-2 py-0.5 text-[11px] font-semibold text-[color:var(--severity-critical)]">
         Exceeded ({worst.daysRemaining ?? "?"} d)
       </span>
     );
   }
   if (worst.status === "within") {
     return (
-      <span className="inline-flex rounded-full bg-[color:var(--green-100)] px-3 py-1 text-[11px] font-semibold text-[color:var(--green-500)]">
+      <span className="inline-flex rounded-[var(--radius-s)] bg-[color:var(--severity-low-bg)] px-2 py-0.5 text-[11px] font-semibold text-[color:var(--severity-low)]">
         Within ({worst.daysRemaining ?? "?"} d)
       </span>
     );
   }
   return (
-    <span className="inline-flex rounded-full bg-[color:var(--surface-tertiary)] px-3 py-1 text-[11px] font-semibold text-[color:var(--text-tertiary)]">
+    <span className="inline-flex rounded-[var(--radius-s)] bg-[color:var(--surface-secondary)] px-2 py-0.5 text-[11px] font-semibold text-[color:var(--text-tertiary)]">
       No data
     </span>
   );

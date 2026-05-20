@@ -52,19 +52,25 @@ const STAGE_OPTIONS: { value: StageFilter; label: string }[] = [
   { value: "supported", label: "Supported" },
 ];
 
+const filterInputClass =
+  "h-7 rounded-[var(--radius-s)] border border-[color:var(--border-secondary)] bg-[color:var(--surface-primary)] text-[14px] font-normal text-[color:var(--text-primary)] outline-none focus:border-[color:var(--border-active)]";
+
 function pillClass(open: boolean, active: boolean) {
   return cn(
-    "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md border px-2.5 text-[12px] font-semibold transition-colors",
-    open || active
-      ? "border-[color:var(--border-brand)] bg-[color:var(--green-100)] text-[color:var(--text-primary)]"
-      : "border-[color:var(--border-secondary)] bg-white text-[color:var(--text-secondary)] hover:border-[color:var(--navy-500)] hover:bg-[color:var(--surface-secondary)]",
+    "inline-flex h-7 shrink-0 items-center gap-[var(--space-2xs)] rounded-[var(--radius-s)] border px-[var(--space-s)] transition-colors",
+    "text-[14px] font-semibold leading-[19px] text-[color:var(--text-primary)]",
+    open
+      ? "border-[color:var(--border-active)] bg-[color:var(--surface-primary)]"
+      : active
+        ? "border-[color:var(--border-active)] bg-[color:var(--surface-primary)]"
+        : "border-[color:var(--border-secondary)] bg-[color:var(--surface-primary)] hover:border-[color:var(--border-strong)] hover:bg-[color:var(--surface-secondary)]",
   );
 }
 
 function CountBadge({ n }: { n: number }) {
   if (n <= 0) return null;
   return (
-    <span className="inline-flex min-w-[18px] items-center justify-center rounded-full bg-[color:var(--green-500)] px-1.5 text-[10px] font-bold text-white">
+    <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[color:var(--bg-brand-primary)] px-1 text-[11px] font-semibold leading-none text-[color:var(--text-inverse)]">
       {n}
     </span>
   );
@@ -126,17 +132,20 @@ export function FilterToolbar({
   return (
     <div
       ref={barRef}
-      className="mb-3 flex h-12 min-h-12 items-center gap-2 overflow-x-auto border-b border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="mb-[var(--space-l)] flex h-7 min-h-7 items-center gap-[var(--space-xs)] overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {showAppSearch && onAppSearchChange ? (
         <div className="relative shrink-0">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[color:var(--icon-tertiary)]" />
+          <Search
+            className="pointer-events-none absolute left-[var(--space-s)] top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[color:var(--icon-secondary)]"
+            strokeWidth={1.5}
+          />
           <input
             type="search"
             value={appSearch}
             onChange={(e) => onAppSearchChange(e.target.value)}
             placeholder="Search applications…"
-            className="h-8 w-[200px] rounded-md border border-[color:var(--border-secondary)] bg-white pl-8 pr-2 text-[12px] outline-none ring-[color:var(--green-500)] focus:ring-2"
+            className={cn(filterInputClass, "w-[200px] pl-8 pr-[var(--space-s)]")}
           />
         </div>
       ) : null}
@@ -213,14 +222,14 @@ export function FilterToolbar({
         {STAGE_OPTIONS.map(({ value, label }) => (
           <label
             key={value}
-            className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-[12px] hover:bg-[color:var(--surface-secondary)]"
+            className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-s)] px-2 py-1.5 text-[12px] hover:bg-[color:var(--surface-secondary)]"
           >
             <input
               type="radio"
               name="stage-filter"
               checked={stage === value}
               onChange={() => onStageChange(value)}
-              className="accent-[color:var(--green-500)]"
+              className="accent-[color:var(--brand-green)]"
             />
             {label}
           </label>
@@ -228,41 +237,47 @@ export function FilterToolbar({
       </FilterDropdown>
 
       <div className="relative flex shrink-0 items-center">
-        <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[color:var(--icon-tertiary)]" />
+        <Search
+          className="pointer-events-none absolute left-[var(--space-s)] top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[color:var(--icon-secondary)]"
+          strokeWidth={1.5}
+        />
         <input
           id={cveInputId}
           type="text"
           value={cveId}
           onChange={(e) => onCveChange(e.target.value)}
           placeholder="CVE ID"
-          className="h-8 w-[180px] rounded-md border border-[color:var(--border-secondary)] bg-white pl-8 pr-7 text-[12px] outline-none ring-[color:var(--green-500)] focus:ring-2"
+          className={cn(
+            filterInputClass,
+            "w-[180px] pl-8 pr-7 font-mono",
+          )}
           aria-label="CVE ID filter"
         />
         {cveId ? (
           <button
             type="button"
             onClick={() => onCveChange("")}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-[color:var(--icon-tertiary)] hover:bg-[color:var(--surface-tertiary)]"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-[var(--radius-xs)] p-0.5 text-[color:var(--icon-tertiary)] hover:bg-[color:var(--surface-secondary)]"
             aria-label="Clear CVE ID"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-3.5 w-3.5" strokeWidth={1.5} />
           </button>
         ) : null}
       </div>
 
-      <div className="ml-auto flex shrink-0 items-center gap-2 pl-2">
+      <div className="ml-auto flex shrink-0 items-center gap-[var(--space-xs)] pl-[var(--space-s)]">
         {activeCount > 0 ? (
           <>
-            <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[color:var(--text-secondary)]">
-              <Filter className="h-3.5 w-3.5 text-[color:var(--icon-secondary)]" />
+            <span className="inline-flex items-center gap-1 text-[12px] font-normal text-[color:var(--text-secondary)]">
+              <Filter className="h-3.5 w-3.5 text-[color:var(--icon-secondary)]" strokeWidth={1.5} />
               Filters: {activeCount}
             </span>
             <button
               type="button"
               onClick={onClearAll}
-              className="inline-flex items-center gap-1 text-[12px] font-semibold text-[color:var(--text-link)] hover:underline"
+              className="inline-flex items-center gap-1 text-[12px] font-normal text-[color:var(--text-link)] hover:underline"
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="h-3.5 w-3.5" strokeWidth={1.5} />
               Clear all
             </button>
           </>
@@ -288,23 +303,19 @@ function FilterDropdown({
   const ref = useRef<HTMLDivElement>(null);
   return (
     <div ref={ref} className="relative shrink-0">
-      <button
-        type="button"
-        onClick={onToggle}
-        className={pillClass(open, badge > 0)}
-        aria-expanded={open}
-      >
+      <button type="button" onClick={onToggle} className={pillClass(open, badge > 0)} aria-expanded={open}>
         {label}
         <CountBadge n={badge} />
         <ChevronDown
           className={cn(
-            "h-3.5 w-3.5 text-[color:var(--icon-tertiary)] transition-transform",
+            "h-3.5 w-3.5 text-[color:var(--icon-secondary)] transition-transform",
             open && "rotate-180",
           )}
+          strokeWidth={1.5}
         />
       </button>
       {open ? (
-        <div className="absolute left-0 top-full z-50 mt-1 min-w-[200px] rounded-md border border-[color:var(--border-secondary)] bg-white py-1 shadow-lg">
+        <div className="absolute left-0 top-full z-50 mt-1 min-w-[200px] rounded-[var(--radius-s)] border border-[color:var(--border-secondary)] bg-[color:var(--surface-primary)] py-1 shadow-[var(--shadow-sunken)]">
           {children}
         </div>
       ) : null}
@@ -324,12 +335,12 @@ function CheckboxRow({
   dot?: string;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-[12px] hover:bg-[color:var(--surface-secondary)]">
+    <label className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-s)] px-2 py-1.5 text-[12px] hover:bg-[color:var(--surface-secondary)]">
       <input
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="accent-[color:var(--green-500)]"
+        className="accent-[color:var(--brand-green)]"
       />
       {dot ? (
         <span

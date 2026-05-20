@@ -33,7 +33,7 @@ function Toggle({
           }`}
       >
         <span
-          className={`absolute top-0.5 left-1 h-[18px] w-[18px] rounded-full bg-white shadow transition-all ${checked ? "translate-x-5" : ""
+          className={`absolute top-0.5 left-1 h-[18px] w-[18px] rounded-full bg-[color:var(--surface-primary)] shadow transition-all ${checked ? "translate-x-5" : ""
             }`}
         />
       </button>
@@ -60,7 +60,7 @@ function Chip({
       onClick={onClick}
       className={`rounded-full border px-3 py-1 text-[11px] font-semibold capitalize ${selected
           ? "border-[color:var(--green-500)] bg-[color:var(--green-100)] text-[color:var(--green-500)]"
-          : "border-[color:var(--border-secondary)] bg-white text-[color:var(--text-secondary)]"
+          : "border-[color:var(--border-secondary)] bg-[color:var(--surface-primary)] text-[color:var(--text-secondary)]"
         }`}
     >
       {label}
@@ -289,7 +289,7 @@ export function PolicyView() {
           <button
             type="button"
             onClick={() => setPolicy(DEFAULT_SLA_POLICY)}
-            className="h-10 rounded-md border border-[color:var(--border-secondary)] bg-white px-5 text-[13px] font-semibold text-[color:var(--text-primary)] hover:bg-[color:var(--surface-secondary)]"
+            className="h-10 rounded-md border border-[color:var(--border-secondary)] bg-[color:var(--surface-primary)] px-5 text-[13px] font-semibold text-[color:var(--text-primary)] hover:bg-[color:var(--surface-secondary)]"
           >
             Reset to defaults
           </button>
@@ -305,7 +305,7 @@ export function PolicyView() {
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-[color:var(--border-primary)] bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] p-6 shadow-sm">
       <h2 className="text-[18px] font-semibold text-[color:var(--text-primary)]">{title}</h2>
       <div className="mt-4">{children}</div>
     </section>

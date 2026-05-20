@@ -14,9 +14,9 @@ export function AppShell({
   showFederatedAlert = true,
 }: AppShellProps) {
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[color:var(--background-plain)]">
+    <div className="flex h-screen w-full overflow-hidden bg-[color:var(--bg-page)]">
       <JFrogSidebar />
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[color:var(--background-plain)]">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[color:var(--bg-page)]">
         <JFrogTopBar />
         {showFederatedAlert && (
           <div

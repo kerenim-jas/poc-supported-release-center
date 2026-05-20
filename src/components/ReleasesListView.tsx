@@ -169,7 +169,7 @@ export function ReleasesListView() {
   }
 
   return (
-    <div className="mx-auto max-w-[1400px] px-6 pb-10 pt-4">
+    <div className="mx-auto max-w-[1400px] px-[var(--space-l)] pb-[var(--space-l)] pt-[var(--space-s)]">
       <PageHeader
         crumbs={[
           { label: "All Projects", href: "/" },
@@ -196,26 +196,18 @@ export function ReleasesListView() {
         onClearAll={clearAll}
       />
 
-      <div className="overflow-auto rounded-lg border border-[color:var(--border-primary)] bg-white shadow-sm">
-        <table className="min-w-[1024px] w-full border-collapse text-[13px]">
-          <thead className="bg-[color:var(--surface-secondary)] text-left text-[11px] font-semibold uppercase tracking-wide text-[color:var(--text-secondary)]">
-            <tr>
-              <th className="sticky top-0 px-4 py-2.5 font-semibold">
-                Docker image · path
-              </th>
-              <th className="sticky top-0 px-4 py-2.5 font-semibold">
-                Version · trust
-              </th>
-              <th className="sticky top-0 px-4 py-2.5 font-semibold">Running</th>
-              <th className="sticky top-0 px-4 py-2.5 font-semibold">Open CVE</th>
-              <th className="sticky top-0 px-4 py-2.5 font-semibold">SLA window</th>
-              <th className="sticky top-0 px-4 py-2.5 font-semibold">
-                Fix lifecycle
-              </th>
-              <th className="sticky top-0 px-4 py-2.5 font-semibold">
-                Last promoted
-              </th>
-              <th className="sticky top-0 px-4 py-2.5 font-semibold" />
+      <div className="overflow-auto rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] shadow-[var(--shadow-sunken)]">
+        <table className="min-w-[1024px] w-full border-collapse">
+          <thead className="text-left">
+            <tr className="table-header-row">
+              <th className="sticky top-0">Docker image · path</th>
+              <th className="sticky top-0">Version · trust</th>
+              <th className="sticky top-0">Running</th>
+              <th className="sticky top-0">Open CVE</th>
+              <th className="sticky top-0">SLA window</th>
+              <th className="sticky top-0">Fix lifecycle</th>
+              <th className="sticky top-0">Last promoted</th>
+              <th className="sticky top-0" />
             </tr>
           </thead>
           <tbody>
@@ -226,12 +218,12 @@ export function ReleasesListView() {
               return (
                 <tr
                   key={r.id}
-                  className={`border-t border-[color:var(--border-primary)] hover:bg-[color:var(--surface-secondary)]/60 ${borderUrgency(r)}`}
+                  className={cn("table-data-row", borderUrgency(r))}
                 >
-                  <td className="px-4 py-2.5 align-middle">
+                  <td>
                     <Link
                       href={`/releases/${r.id}/`}
-                      className="font-semibold text-[color:var(--text-link)] hover:underline"
+                      className="font-semibold text-[color:var(--text-link)] no-underline hover:underline"
                     >
                       {r.imageName}
                     </Link>
@@ -239,7 +231,7 @@ export function ReleasesListView() {
                       {r.imagePath}
                     </div>
                   </td>
-                  <td className="px-4 py-2.5 align-middle">
+                  <td>
                     <div className="flex flex-wrap gap-2">
                       <span className="rounded bg-[color:var(--surface-tertiary)] px-2 py-0.5 font-mono text-[12px]">
                         {r.version}
@@ -255,10 +247,10 @@ export function ReleasesListView() {
                       </span>
                     </div>
                   </td>
-                  <td className="px-4 py-2.5 align-middle">
+                  <td>
                     <RunningBadge r={r} />
                   </td>
-                  <td className="px-4 py-2.5 align-middle">
+                  <td>
                     <SeverityChips
                       counts={{
                         critical: counts.critical,
@@ -267,13 +259,13 @@ export function ReleasesListView() {
                       }}
                     />
                   </td>
-                  <td className="px-4 py-2.5 align-middle">
+                  <td>
                     <SLAPill worst={worst} />
                   </td>
-                  <td className="px-4 py-2.5 align-middle">
+                  <td>
                     <LifecycleStepBar current={lcState} />
                   </td>
-                  <td className="px-4 py-2.5 align-middle text-[12px] text-[color:var(--text-secondary)]">
+                  <td className="text-[12px] text-[color:var(--text-secondary)]">
                     {formatShort(
                       r.timeline[r.timeline.length - 1]?.ts ?? r.lastUpdated,
                     )}{" "}
@@ -290,10 +282,10 @@ export function ReleasesListView() {
                       })()}
                     </span>
                   </td>
-                  <td className="px-4 py-2.5 align-middle text-right">
+                  <td className="text-right">
                     <button
                       type="button"
-                      className="rounded p-1 hover:bg-[color:var(--surface-tertiary)]"
+                      className="rounded-[var(--radius-s)] p-1 hover:bg-[color:var(--surface-secondary)]"
                       aria-label="Row actions"
                     >
                       <MoreHorizontal className="h-5 w-5 text-[color:var(--icon-tertiary)]" />
@@ -324,20 +316,20 @@ function SLAPill({
 }) {
   if (worst.status === "breached") {
     return (
-      <span className="inline-flex rounded-full bg-[color:var(--red-100)] px-3 py-1 text-[11px] font-semibold text-[color:var(--red-600)]">
+      <span className="inline-flex rounded-[var(--radius-s)] bg-[color:var(--severity-critical-bg)] px-2 py-0.5 text-[11px] font-semibold text-[color:var(--severity-critical)]">
         Exceeded SLA ({worst.daysRemaining ?? "?"} d)
       </span>
     );
   }
   if (worst.status === "within") {
     return (
-      <span className="inline-flex rounded-full bg-[color:var(--green-100)] px-3 py-1 text-[11px] font-semibold text-[color:var(--green-500)]">
+      <span className="inline-flex rounded-[var(--radius-s)] bg-[color:var(--severity-low-bg)] px-2 py-0.5 text-[11px] font-semibold text-[color:var(--severity-low)]">
         Within SLA ({worst.daysRemaining ?? "?"} d)
       </span>
     );
   }
   return (
-    <span className="inline-flex rounded-full bg-[color:var(--surface-tertiary)] px-3 py-1 text-[11px] font-semibold text-[color:var(--text-tertiary)]">
+    <span className="inline-flex rounded-[var(--radius-s)] bg-[color:var(--surface-secondary)] px-2 py-0.5 text-[11px] font-semibold text-[color:var(--text-tertiary)]">
       No SLA data
     </span>
   );

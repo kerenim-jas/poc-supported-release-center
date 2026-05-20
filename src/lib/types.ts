@@ -1,5 +1,5 @@
 /**
- * v0.6 domain model — Application-centric Trusted ∩ Supported releases.
+ * v0.7 domain model — Application-centric Trusted ∩ Supported releases.
  * Runtime is a light "Is It Running" touchpoint only.
  */
 
