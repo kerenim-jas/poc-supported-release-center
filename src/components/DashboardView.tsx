@@ -66,55 +66,37 @@ export function DashboardView() {
         ]}
       />
 
-      <section className="grid gap-3 lg:grid-cols-3">
-        {/* Overview */}
-        <div className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] p-4 shadow-sm">
-          <div className="mb-2 flex items-start justify-between gap-2">
-            <div>
-              <p className="text-[12px] font-semibold uppercase tracking-wide text-[color:var(--text-secondary)]">
-                Supported Releases Overview
-              </p>
-              <h2 className="mt-2 text-[16px] font-semibold text-[color:var(--text-primary)]">
-                Release Center Overview
-              </h2>
-            </div>
-            <button
-              type="button"
-              className="rounded p-1.5 text-[color:var(--icon-secondary)] hover:bg-[color:var(--surface-secondary)]"
-              aria-label="Edit overview"
-              title="Edit"
-            >
-              <PencilIcon size={16} />
-            </button>
-          </div>
-          <dl className="mt-4 space-y-3 text-[13px]">
-            <div>
-              <dt className="text-[color:var(--text-secondary)]">Tenant</dt>
-              <dd className="font-semibold text-[color:var(--text-primary)]">
-                {TENANT_NAME}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[color:var(--text-secondary)]">Active SLA policy</dt>
-              <dd>{OVERVIEW_POLICY_BLURB}</dd>
-            </div>
-            <div>
-              <dt className="text-[color:var(--text-secondary)]">
-                Trusted + Supported intersection
-              </dt>
-              <dd className="inline-flex items-center gap-2 font-semibold">
-                <BadgeCheckIcon size={16} className="text-[color:var(--green-500)]" />
-                {APPLICATIONS.length} applications · {RELEASES.length} releases
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[color:var(--text-secondary)]">Last refresh</dt>
-              <dd>{fmtTime(LAST_REFRESH_ISO)}</dd>
-            </div>
-          </dl>
-        </div>
+      <section className="mt-[var(--space-l)] mb-[var(--space-l)] grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Kpi
+          title="Supported Applications"
+          value={`${APPLICATIONS.length}`}
+          sub={`Tier-1 · ${APPLICATIONS.filter((a) => a.businessCriticality === "tier-1").length} · customer-facing · ${APPLICATIONS.filter((a) => a.customerFacing).length}`}
+        />
+        <Kpi
+          title="Supported Docker Releases"
+          value={`${RELEASES.length}`}
+          sub={`Latest · ${RELEASES.filter((r) => r.supportTier === "latest").length} · Supported back · ${RELEASES.filter((r) => r.supportTier === "supported").length} · Out of support · ${OUT_OF_SUPPORT_TRUSTED_COUNT}`}
+        />
+        <Kpi
+          title="Currently Running in Prod"
+          value={`${prodRunning}`}
+          sub={`${runningPct}% of Trusted+Supported (${RELEASES.length})`}
+          accent={
+            prodRunning >= RELEASES.length * 0.6
+              ? "green"
+              : "amber"
+          }
+        />
+        <Kpi
+          title="SLA Breaches Today"
+          value={`${breachReleaseCount}`}
+          sub={`across ${RELEASES.length} Trusted+Supported releases`}
+          accent={breachReleaseCount === 0 ? "green" : "red"}
+        />
+      </section>
 
-        {/* Dream widget */}
+      <section className="grid gap-3 lg:grid-cols-3">
+        {/* Dream widget — headline detail after KPIs */}
         <div
           className="flex flex-col rounded-[var(--radius-s)] border-[3px] bg-[color:var(--platform-post-release-bg)] p-4 shadow-sm lg:col-span-1"
           style={{ borderColor: "var(--platform-post-release-border)" }}
@@ -174,38 +156,56 @@ export function DashboardView() {
 
         {/* Bottlenecks */}
         <FixLifecycleBottlenecksWidget bottlenecks={FIX_BOTTLENECKS} />
+
+        {/* Overview */}
+        <div className="rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] p-4 shadow-sm">
+          <div className="mb-2 flex items-start justify-between gap-2">
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-wide text-[color:var(--text-secondary)]">
+                Supported Releases Overview
+              </p>
+              <h2 className="mt-2 text-[16px] font-semibold text-[color:var(--text-primary)]">
+                Release Center Overview
+              </h2>
+            </div>
+            <button
+              type="button"
+              className="rounded p-1.5 text-[color:var(--icon-secondary)] hover:bg-[color:var(--surface-secondary)]"
+              aria-label="Edit overview"
+              title="Edit"
+            >
+              <PencilIcon size={16} />
+            </button>
+          </div>
+          <dl className="mt-4 space-y-3 text-[13px]">
+            <div>
+              <dt className="text-[color:var(--text-secondary)]">Tenant</dt>
+              <dd className="font-semibold text-[color:var(--text-primary)]">
+                {TENANT_NAME}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[color:var(--text-secondary)]">Active SLA policy</dt>
+              <dd>{OVERVIEW_POLICY_BLURB}</dd>
+            </div>
+            <div>
+              <dt className="text-[color:var(--text-secondary)]">
+                Trusted + Supported intersection
+              </dt>
+              <dd className="inline-flex items-center gap-2 font-semibold">
+                <BadgeCheckIcon size={16} className="text-[color:var(--green-500)]" />
+                {APPLICATIONS.length} applications · {RELEASES.length} releases
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[color:var(--text-secondary)]">Last refresh</dt>
+              <dd>{fmtTime(LAST_REFRESH_ISO)}</dd>
+            </div>
+          </dl>
+        </div>
       </section>
 
-      <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Kpi
-          title="Supported Applications"
-          value={`${APPLICATIONS.length}`}
-          sub={`Tier-1 · ${APPLICATIONS.filter((a) => a.businessCriticality === "tier-1").length} · customer-facing · ${APPLICATIONS.filter((a) => a.customerFacing).length}`}
-        />
-        <Kpi
-          title="Supported Docker Releases"
-          value={`${RELEASES.length}`}
-          sub={`Latest · ${RELEASES.filter((r) => r.supportTier === "latest").length} · Supported back · ${RELEASES.filter((r) => r.supportTier === "supported").length} · Out of support · ${OUT_OF_SUPPORT_TRUSTED_COUNT}`}
-        />
-        <Kpi
-          title="Currently Running in Prod"
-          value={`${prodRunning}`}
-          sub={`${runningPct}% of Trusted+Supported (${RELEASES.length})`}
-          accent={
-            prodRunning >= RELEASES.length * 0.6
-              ? "green"
-              : "amber"
-          }
-        />
-        <Kpi
-          title="SLA Breaches Today"
-          value={`${breachReleaseCount}`}
-          sub={`across ${RELEASES.length} Trusted+Supported releases`}
-          accent={breachReleaseCount === 0 ? "green" : "red"}
-        />
-      </section>
-
-      <section className="mt-10 rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] p-6 shadow-sm">
+      <section className="mt-[var(--space-l)] rounded-[var(--radius-s)] border border-[color:var(--border-primary)] bg-[color:var(--surface-primary)] p-6 shadow-sm">
         <h3 className="text-[14px] font-semibold uppercase tracking-wide text-[color:var(--text-secondary)]">
           Recent Activity
         </h3>
